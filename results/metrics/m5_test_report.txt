@@ -1,0 +1,159 @@
+M5 — MLP ARCHITECTURE INDEPENDENT VERIFICATION
+Date: 2026-11-24T16:31:53.153672+07:00
+Versions: {'python': '3.11.15', 'pytorch': '2.13.0+cu130', 'pytest': '9.2.0'}
+Command: .venv/bin/python -m pytest source/tests/test_model.py -v --tb=short --durations=10 --junitxml=/tmp/m5-pytest.xml
+M5: 58 collected | {'PASS': 58, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0} | 9.5s
+Groups: {'Architecture': {'PASS': 10, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'Forward': {'PASS': 12, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'Parameters': {'PASS': 2, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'Initialization': {'PASS': 8, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'CustomActivation': {'PASS': 4, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'Optimization': {'PASS': 6, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'EndToEnd': {'PASS': 2, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'Errors': {'PASS': 14, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}}
+Parameter count: 1,581,313 = 12288*128+128 + 128*64+64 + 64*1+1.
+
+CONTRACT AND REFERENCE REVIEW
+{'constructor': 'MLP(input_dim=12288, hidden_dims=(128,64), activation="relu")', 'forward': 'Flatten from dimension1; Sequential Linear/CustomActivation hidden, Linear output [B,1] logits', 'initialization': 'initialize_model(model,method="he_normal"): hidden initializer selected; last Linear always Xavier'}
+Lecturer network.predict uses view(1,-1) and a raw Python list; current model uses flatten(start_dim=1) and nn.Sequential, preserving batch and registered Parameters. Lecturer FCLayer stores[in,out], while nn.Linear stores[out,in]. No lecturer demos or serialized pretrained weights executed.
+
+SINGLE BATCH LEARNING
+Fixed actual train batch:32 augmented images, seed42 for Python/torch, workers0, Adam lr0.001,100 steps. Batch materialized once then reused; no repeated augmentation between steps. Initial and final are measured with BCEWithLogitsLoss, final after the100th optimizer update.
+Threshold declared before execution: final loss < 0.1*initial. Not a monotonic-loss requirement. Different dtypes need not have identical RNG draws or initial weights.
+{"dtype": "torch.float32", "device": "cpu", "steps": 100, "initial_loss": 1.0389459133148193, "final_loss": 0.05933211371302605, "history": [1.0389459133148193, 1.0174566507339478, 4.965806484222412, 3.9601376056671143, 2.031726837158203, 1.2115440368652344, 1.8038824796676636, 0.9802311658859253, 0.6146543622016907, 1.091712474822998, 0.8969039916992188, 0.45789647102355957, 0.7109113931655884, 0.7426697611808777, 0.4523200988769531, 0.4777008593082428, 0.59560626745224, 0.517013430595398, 0.390275239944458, 0.43348535895347595, 0.49100184440612793, 0.41830021142959595, 0.3487181067466736, 0.3836919367313385, 0.4111490845680237, 0.3592691123485565, 0.315682053565979, 0.33667516708374023, 0.351811021566391, 0.3169485330581665, 0.28556421399116516, 0.295887291431427, 0.3051780164241791, 0.2808648645877838, 0.25787627696990967, 0.2620624899864197, 0.26661935448646545, 0.25031575560569763, 0.23269635438919067, 0.2327290028333664, 0.23509088158607483, 0.22347617149353027, 0.2101944535970688, 0.20840388536453247, 0.2089044600725174, 0.20076747238636017, 0.1905398964881897, 0.1874939650297165, 0.18699146807193756, 0.18109393119812012, 0.17316067218780518, 0.1696794480085373, 0.16840942203998566, 0.16403479874134064, 0.15782031416893005, 0.15411576628684998, 0.15236273407936096, 0.1489822119474411, 0.14404748380184174, 0.14040951430797577, 0.1383233368396759, 0.13558334112167358, 0.1316588968038559, 0.12820971012115479, 0.1259194016456604, 0.1235823705792427, 0.12043733894824982, 0.11730416119098663, 0.11492731422185898, 0.11281103640794754, 0.11026177555322647, 0.10750963538885117, 0.10515198111534119, 0.10315114259719849, 0.1010228618979454, 0.0986676812171936, 0.09643805027008057, 0.09450703859329224, 0.09264710545539856, 0.0906507819890976, 0.08862972259521484, 0.08678080886602402, 0.08508003503084183, 0.08336223661899567, 0.08158636838197708, 0.07987143844366074, 0.07828305661678314, 0.0767415463924408, 0.07517588138580322, 0.07363080978393555, 0.07215703278779984, 0.07075324654579163, 0.06937333941459656, 0.06799619644880295, 0.06664752960205078, 0.06535431742668152, 0.06410796195268631, 0.06288202106952667, 0.061669398099184036, 0.06047351285815239], "required_final_initial_ratio": 0.1, "seed": 42, "samples": 32, "source": "fixed augmented training batch"}
+{"dtype": "torch.float64", "device": "cpu", "steps": 100, "initial_loss": 0.7929798453877693, "final_loss": 0.01156389710197119, "history": [0.7929798453877693, 3.627303142453567, 0.9050366379876931, 1.3673988554235676, 0.5584203405295662, 1.1589831590608468, 0.5164047122994164, 0.819321749476126, 0.6344100892686093, 0.5345045116618445, 0.6505158884233757, 0.45317339493325026, 0.5081998840699825, 0.5192078788333654, 0.38808928710192053, 0.43999247251917184, 0.43311673136624373, 0.3427528047250893, 0.3721578825374765, 0.3701216054838444, 0.3031450104832817, 0.324534453851327, 0.32571045008132926, 0.27168947402698695, 0.27682973600942334, 0.2849781187401738, 0.24340688977732033, 0.23829079642212575, 0.24610665180974728, 0.2188871296604353, 0.2039146316892072, 0.21050748580674103, 0.19319182796575374, 0.1762651276401831, 0.1785207213233252, 0.1705910550946662, 0.15374153447677694, 0.14870272722198058, 0.14346291977006534, 0.12781742605648666, 0.11904515447822256, 0.11845251303378694, 0.11020637133527783, 0.1016836798308695, 0.10063940355273217, 0.09654312726658591, 0.08718223051183963, 0.0833605195938936, 0.08187536802886104, 0.07663940755184565, 0.07062977224431595, 0.06793859980223313, 0.06542776241365014, 0.06106965719396158, 0.05739439079241218, 0.05562624051291364, 0.053742236405135854, 0.05056467562651214, 0.047767954976390054, 0.04642699500937157, 0.04464850110802464, 0.04216869055135562, 0.04023452747767532, 0.0389833922233961, 0.037383603286137754, 0.03541399160188391, 0.033949489301268884, 0.03281789556965645, 0.03150007038176467, 0.030028568846871554, 0.02886611030229374, 0.027987317693065863, 0.02695151690709674, 0.02577939127328722, 0.024810049754887858, 0.024073556433064143, 0.023248798620701203, 0.0223532183035755, 0.02161248215274849, 0.020988900668154765, 0.02033386679563705, 0.019612123531578405, 0.01896777200382152, 0.01843552127693065, 0.017904833533014253, 0.01735799342209071, 0.01683698929741339, 0.01636612320518363, 0.015922021945705196, 0.015458485548747413, 0.01500528475894085, 0.014602874714440644, 0.014228715389712075, 0.013846896060566018, 0.013463577303008631, 0.013108286990411964, 0.012772086833104235, 0.012453095705226918, 0.012149128545289427, 0.01185190514828254], "required_final_initial_ratio": 0.1, "seed": 42, "samples": 32, "source": "fixed augmented training batch"}
+
+REGRESSION
+Command: .venv/bin/python -m pytest source/tests/test_preprocessing.py source/tests/test_dataset.py source/tests/test_augmentation.py source/tests/test_activations.py source/tests/test_initialization.py source/tests/test_model.py -v --tb=short --durations=10 --junitxml=/tmp/m5-regression.xml
+425 collected | {'PASS': 425, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0} | 17.77s
+{'test_preprocessing': {'PASS': 26, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'test_dataset': {'PASS': 54, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'test_augmentation': {'PASS': 59, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'test_activations': {'PASS': 100, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'test_initialization': {'PASS': 128, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}, 'test_model': {'PASS': 58, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}}
+M5 is included again in regression: do not add totals as unique-test count. Six completed test files only; no M6-M8 or lecturer demos.
+
+FAILURES / FINDINGS
+No failing tests or mandatory default-pipeline bugs found.
+{"priority": "P2", "location": "source/model.py:20-27", "input": "MLP(input_dim=8, hidden_dims=(0,))", "actual": "Accepted; output [2,1], warning zero-element tensors. Hidden representation has zero features.", "expected": "Optional contract improvement: require positive integer widths.", "cause": "Constructor delegates width validation to nn.Linear; zero is supported there.", "suggestion": "If zero-width layers are outside your intended API, explicitly require each hidden width > 0.", "blocking": false}
+{"priority": "P2", "location": "source/model.py:20-27,55-58", "input": "MLP(input_dim=8, hidden_dims=(), activation=\"unsupported\"); initialize_model(model,\"unsupported\")", "actual": "Both accepted; no hidden activation is constructed, output initialized with Xavier.", "expected": "Optional consistent API: reject invalid names even if there are no hidden layers.", "cause": "Validation occurs only inside hidden-layer iteration.", "suggestion": "Validate names at entry, or explicitly document empty hidden_dims semantics.", "blocking": false}
+
+UNVERIFIED SCOPE
+CUDA unavailable: CPU float32/float64 only; no GPU PASS claimed.
+No full-dataset training, validation accuracy, generalization, convergence comparison, or M6 trainer verification. A single fixed augmented train batch of32 images is reused for100 Adam steps.
+Single-batch learning tested with default ReLU+He hidden/Xavier output only. Sigmoid backward/Adam integration tested, but not100-step overfitting for every activation/initializer combination.
+No float16/bfloat16/complex/sparse/compiled/distributed/multiprocessing tests.
+Notebook and existing figures were read/preserved, not rerun or regenerated. Test artifacts are independent of notebook claims.
+Non-MLP arguments to initialize_model, scalar/unbatched image inputs, malformed dtype, NaN/Inf inputs, and zero-batch behavior are outside the tested contract.
+Forward accepts any batched tensor flattening to input_dim; does not enforce exact NCHW shape. Incompatible flattened feature count is tested and rejected.
+Optional edge probes are reported separately, not counted as additional pytest PASS tests.
+
+DEFINITION OF DONE
+M5 technical DoD achieved for CPU float32/float64: architecture, batch flatten, logits, registration/state_dict, initialization, custom autograd, BCE/Adam, real data integration and fixed-batch learning verified. P2 validation suggestions are non-blocking.
+Protected source/data/references files unchanged: 1353. No algorithm/data/config changes, M6 implementation, commit or push.
+
+RAW M5 PYTEST OUTPUT
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02
+plugins: anyio-4.14.2
+collecting ... collected 58 items
+
+source/tests/test_model.py::TestArchitecture::test_dimensions_order_and_registered_modules[hidden0-relu] PASSED [  1%]
+source/tests/test_model.py::TestArchitecture::test_dimensions_order_and_registered_modules[hidden0-sigmoid] PASSED [  3%]
+source/tests/test_model.py::TestArchitecture::test_dimensions_order_and_registered_modules[hidden1-relu] PASSED [  5%]
+source/tests/test_model.py::TestArchitecture::test_dimensions_order_and_registered_modules[hidden1-sigmoid] PASSED [  6%]
+source/tests/test_model.py::TestArchitecture::test_dimensions_order_and_registered_modules[hidden2-relu] PASSED [  8%]
+source/tests/test_model.py::TestArchitecture::test_dimensions_order_and_registered_modules[hidden2-sigmoid] PASSED [ 10%]
+source/tests/test_model.py::TestArchitecture::test_dimensions_order_and_registered_modules[hidden3-relu] PASSED [ 12%]
+source/tests/test_model.py::TestArchitecture::test_dimensions_order_and_registered_modules[hidden3-sigmoid] PASSED [ 13%]
+source/tests/test_model.py::TestArchitecture::test_output_is_unbounded_logit[float32-cpu] PASSED [ 15%]
+source/tests/test_model.py::TestArchitecture::test_output_is_unbounded_logit[float64-cpu] PASSED [ 17%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float32-cpu-relu-1] PASSED [ 18%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float32-cpu-relu-2] PASSED [ 20%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float32-cpu-relu-32] PASSED [ 22%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float32-cpu-sigmoid-1] PASSED [ 24%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float32-cpu-sigmoid-2] PASSED [ 25%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float32-cpu-sigmoid-32] PASSED [ 27%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float64-cpu-relu-1] PASSED [ 29%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float64-cpu-relu-2] PASSED [ 31%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float64-cpu-relu-32] PASSED [ 32%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float64-cpu-sigmoid-1] PASSED [ 34%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float64-cpu-sigmoid-2] PASSED [ 36%]
+source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float64-cpu-sigmoid-32] PASSED [ 37%]
+source/tests/test_model.py::TestParameters::test_count_registration_and_safe_state_dict_roundtrip[float32-cpu] PASSED [ 39%]
+source/tests/test_model.py::TestParameters::test_count_registration_and_safe_state_dict_roundtrip[float64-cpu] PASSED [ 41%]
+source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float32-cpu-normal] PASSED [ 43%]
+source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float32-cpu-fan_in_normal] PASSED [ 44%]
+source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float32-cpu-xavier_normal] PASSED [ 46%]
+source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float32-cpu-he_normal] PASSED [ 48%]
+source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float64-cpu-normal] PASSED [ 50%]
+source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float64-cpu-fan_in_normal] PASSED [ 51%]
+source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float64-cpu-xavier_normal] PASSED [ 53%]
+source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float64-cpu-he_normal] PASSED [ 55%]
+source/tests/test_model.py::TestCustomActivation::test_custom_backward_and_derivative_are_called[float32-cpu-relu] PASSED [ 56%]
+source/tests/test_model.py::TestCustomActivation::test_custom_backward_and_derivative_are_called[float32-cpu-sigmoid] PASSED [ 58%]
+source/tests/test_model.py::TestCustomActivation::test_custom_backward_and_derivative_are_called[float64-cpu-relu] PASSED [ 60%]
+source/tests/test_model.py::TestCustomActivation::test_custom_backward_and_derivative_are_called[float64-cpu-sigmoid] PASSED [ 62%]
+source/tests/test_model.py::TestOptimization::test_bce_gradients_and_adam_updates_all_parameters[float32-cpu-relu] PASSED [ 63%]
+source/tests/test_model.py::TestOptimization::test_bce_gradients_and_adam_updates_all_parameters[float32-cpu-sigmoid] PASSED [ 65%]
+source/tests/test_model.py::TestOptimization::test_bce_gradients_and_adam_updates_all_parameters[float64-cpu-relu] PASSED [ 67%]
+source/tests/test_model.py::TestOptimization::test_bce_gradients_and_adam_updates_all_parameters[float64-cpu-sigmoid] PASSED [ 68%]
+source/tests/test_model.py::TestOptimization::test_fixed_real_batch_learning_100_steps[float32-cpu] PASSED [ 70%]
+source/tests/test_model.py::TestOptimization::test_fixed_real_batch_learning_100_steps[float64-cpu] PASSED [ 72%]
+source/tests/test_model.py::TestEndToEnd::test_real_loaders_train_only_augmentation_and_step[float32-cpu] PASSED [ 74%]
+source/tests/test_model.py::TestEndToEnd::test_real_loaders_train_only_augmentation_and_step[float64-cpu] PASSED [ 75%]
+source/tests/test_model.py::TestErrors::test_invalid_activation_with_hidden_layers[tanh] PASSED [ 77%]
+source/tests/test_model.py::TestErrors::test_invalid_activation_with_hidden_layers[] PASSED [ 79%]
+source/tests/test_model.py::TestErrors::test_invalid_activation_with_hidden_layers[None] PASSED [ 81%]
+source/tests/test_model.py::TestErrors::test_invalid_initialization_default_architecture[invalid] PASSED [ 82%]
+source/tests/test_model.py::TestErrors::test_invalid_initialization_default_architecture[] PASSED [ 84%]
+source/tests/test_model.py::TestErrors::test_invalid_initialization_default_architecture[None] PASSED [ 86%]
+source/tests/test_model.py::TestErrors::test_incompatible_feature_count[float32-cpu-shape0] PASSED [ 87%]
+source/tests/test_model.py::TestErrors::test_incompatible_feature_count[float32-cpu-shape1] PASSED [ 89%]
+source/tests/test_model.py::TestErrors::test_incompatible_feature_count[float64-cpu-shape0] PASSED [ 91%]
+source/tests/test_model.py::TestErrors::test_incompatible_feature_count[float64-cpu-shape1] PASSED [ 93%]
+source/tests/test_model.py::TestErrors::test_invalid_hidden_dimensions_rejected[hidden0] PASSED [ 94%]
+source/tests/test_model.py::TestErrors::test_invalid_hidden_dimensions_rejected[hidden1] PASSED [ 96%]
+source/tests/test_model.py::TestErrors::test_invalid_hidden_dimensions_rejected[hidden2] PASSED [ 98%]
+source/tests/test_model.py::TestErrors::test_invalid_hidden_dimensions_rejected[None] PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /home/kjwyy/miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+-------------------- generated xml file: /tmp/m5-pytest.xml --------------------
+============================= slowest 10 durations =============================
+3.15s call     source/tests/test_model.py::TestOptimization::test_fixed_real_batch_learning_100_steps[float64-cpu]
+1.21s call     source/tests/test_model.py::TestOptimization::test_fixed_real_batch_learning_100_steps[float32-cpu]
+0.52s call     source/tests/test_model.py::TestEndToEnd::test_real_loaders_train_only_augmentation_and_step[float64-cpu]
+0.50s call     source/tests/test_model.py::TestEndToEnd::test_real_loaders_train_only_augmentation_and_step[float32-cpu]
+0.48s call     source/tests/test_model.py::TestOptimization::test_bce_gradients_and_adam_updates_all_parameters[float32-cpu-relu]
+0.41s call     source/tests/test_model.py::TestForward::test_batch_flatten_independence_and_noncontiguous[float32-cpu-relu-1]
+0.12s setup    source/tests/test_model.py::TestOptimization::test_fixed_real_batch_learning_100_steps[float32-cpu]
+0.10s call     source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float64-cpu-xavier_normal]
+0.10s call     source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float64-cpu-fan_in_normal]
+0.10s call     source/tests/test_model.py::TestInitialization::test_hidden_dispatch_output_xavier_identity_and_seed[float64-cpu-normal]
+======================== 58 passed, 1 warning in 9.50s =========================
+
+
+RAW REGRESSION SUMMARY
+source/tests/test_model.py::TestErrors::test_invalid_hidden_dimensions_rejected[None] PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /home/kjwyy/miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+------------------ generated xml file: /tmp/m5-regression.xml ------------------
+============================= slowest 10 durations =============================
+4.03s call     source/tests/test_model.py::TestOptimization::test_fixed_real_batch_learning_100_steps[float64-cpu]
+3.85s call     source/tests/test_dataset.py::TestDataLoader::test_l01_l11_all_real_images_once
+1.91s call     source/tests/test_model.py::TestOptimization::test_fixed_real_batch_learning_100_steps[float32-cpu]
+0.58s call     source/tests/test_model.py::TestEndToEnd::test_real_loaders_train_only_augmentation_and_step[float64-cpu]
+0.55s call     source/tests/test_activations.py::TestCustomModule::test_sequential_linear_backprop_and_optimizer_update[float32-cpu-relu]
+0.53s call     source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-scalar]
+0.53s call     source/tests/test_model.py::TestEndToEnd::test_real_loaders_train_only_augmentation_and_step[float32-cpu]
+0.47s call     source/tests/test_initialization.py::TestSignalPropagation::test_ten_layers_same_input_seed_and_sampling[float64-cpu]
+0.46s call     source/tests/test_augmentation.py::TestDataLoaderIntegration::test_real_batches_train_only_eval_deterministic_and_labels
+0.24s call     source/tests/test_augmentation.py::TestDataLoaderIntegration::test_real_train_first_batch_reproducible_when_both_rngs_seeded
+======================= 425 passed, 1 warning in 17.77s ========================
