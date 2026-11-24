@@ -1,0 +1,255 @@
+{
+  "date": "2026-11-24T15:17:43.546181+00:00",
+  "checks": {
+    "five_runs_protocol_30_epochs_metrics_best_checkpoint": {
+      "status": "PASS"
+    },
+    "comparison_same_best_epoch": {
+      "status": "PASS"
+    },
+    "final_test_metrics_confusion_consistency": {
+      "status": "PASS"
+    },
+    "all_test_prediction_details": {
+      "status": "PASS"
+    },
+    "seed42_four_confusion_groups": {
+      "status": "PASS"
+    },
+    "provenance_hashes_and_restored_validation": {
+      "status": "PASS"
+    },
+    "eight_readable_nonblank_figures_200dpi": {
+      "status": "PASS"
+    },
+    "notebook_run_all_saved_outputs": {
+      "status": "PASS"
+    },
+    "regression": {
+      "status": "PASS"
+    }
+  },
+  "regression": {
+    "tests": 529,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 529,
+    "duration_seconds": 44.279,
+    "terminal_duration_seconds": 44.29
+  },
+  "experiments": [
+    {
+      "experiment": "E1",
+      "run_name": "E1_relu_normal_aug",
+      "activation": "relu",
+      "initialization": "normal",
+      "augmentation": true,
+      "best_epoch": 28,
+      "train_loss": 3.0746469161919587,
+      "validation_loss": 2.0825818606785367,
+      "accuracy": 0.8791208791208791,
+      "precision": 0.9176470588235294,
+      "recall": 0.8387096774193549,
+      "f1": 0.8764044943820225,
+      "tp": 78.0,
+      "tn": 82.0,
+      "fp": 7.0,
+      "fn": 15.0
+    },
+    {
+      "experiment": "E2",
+      "run_name": "E2_relu_xavier_aug",
+      "activation": "relu",
+      "initialization": "xavier_normal",
+      "augmentation": true,
+      "best_epoch": 26,
+      "train_loss": 0.24433999326102127,
+      "validation_loss": 0.25540212500881365,
+      "accuracy": 0.9065934065934066,
+      "precision": 0.88,
+      "recall": 0.946236559139785,
+      "f1": 0.9119170984455959,
+      "tp": 88.0,
+      "tn": 77.0,
+      "fp": 12.0,
+      "fn": 5.0
+    },
+    {
+      "experiment": "E3",
+      "run_name": "E3_relu_he_aug",
+      "activation": "relu",
+      "initialization": "he_normal",
+      "augmentation": true,
+      "best_epoch": 28,
+      "train_loss": 0.2658504163725136,
+      "validation_loss": 0.27161499301155845,
+      "accuracy": 0.8846153846153846,
+      "precision": 0.8461538461538461,
+      "recall": 0.946236559139785,
+      "f1": 0.8934010152284264,
+      "tp": 88.0,
+      "tn": 73.0,
+      "fp": 16.0,
+      "fn": 5.0
+    },
+    {
+      "experiment": "E4",
+      "run_name": "E4_sigmoid_xavier_aug",
+      "activation": "sigmoid",
+      "initialization": "xavier_normal",
+      "augmentation": true,
+      "best_epoch": 2,
+      "train_loss": 0.6965186715831418,
+      "validation_loss": 0.6929056965387784,
+      "accuracy": 0.510989010989011,
+      "precision": 0.510989010989011,
+      "recall": 1.0,
+      "f1": 0.6763636363636364,
+      "tp": 93.0,
+      "tn": 0.0,
+      "fp": 89.0,
+      "fn": 0.0
+    },
+    {
+      "experiment": "E5",
+      "run_name": "E5_relu_he_no_aug",
+      "activation": "relu",
+      "initialization": "he_normal",
+      "augmentation": false,
+      "best_epoch": 24,
+      "train_loss": 0.021641022178548328,
+      "validation_loss": 0.10315038333391095,
+      "accuracy": 0.967032967032967,
+      "precision": 0.9484536082474226,
+      "recall": 0.989247311827957,
+      "f1": 0.968421052631579,
+      "tp": 92.0,
+      "tn": 84.0,
+      "fp": 5.0,
+      "fn": 1.0
+    }
+  ],
+  "final_test": {
+    "run_name": "E5_relu_he_no_aug",
+    "best_epoch": 24,
+    "split": "test",
+    "loss": 0.5843423986375456,
+    "accuracy": 0.83984375,
+    "precision": 0.8,
+    "recall": 0.90625,
+    "f1": 0.8498168498168498,
+    "tp": 116.0,
+    "tn": 99.0,
+    "fp": 29.0,
+    "fn": 12.0,
+    "model_configuration": {
+      "seed": 42,
+      "image_size": [
+        64,
+        64
+      ],
+      "image_channels": 3,
+      "num_classes": 2,
+      "hidden_dims": [
+        128,
+        64
+      ],
+      "batch_size": 32,
+      "learning_rate": 0.001,
+      "epochs": 30,
+      "activation": "relu",
+      "initialization": "he_normal",
+      "optimizer": "Adam",
+      "loss": "BCEWithLogitsLoss",
+      "device": "cpu",
+      "num_workers": 0,
+      "run_name": "E5_relu_he_no_aug",
+      "augmentation_enabled": false
+    },
+    "checkpoint_path": "results/checkpoints/E5_relu_he_no_aug.pt",
+    "number_of_samples": 256,
+    "accuracy_percentage": 83.984375,
+    "classification_threshold": 0.5
+  },
+  "technical_done": true,
+  "artifacts": [
+    "results/metrics/experiment_comparison.csv",
+    "results/metrics/experiment_comparison.json",
+    "results/metrics/final_test_metrics.json",
+    "results/metrics/test_prediction_details.csv",
+    "results/metrics/m7_artifact_manifest.json",
+    "results/metrics/m7_verification_summary.json",
+    "results/metrics/m7_verification_report.txt",
+    "results/figures/initialization_train_loss.png",
+    "results/figures/initialization_val_loss.png",
+    "results/figures/activation_comparison.png",
+    "results/figures/augmentation_effect.png",
+    "results/figures/validation_metrics_comparison.png",
+    "results/figures/best_model_training_curves.png",
+    "results/figures/test_confusion_matrix.png",
+    "results/figures/test_predictions.png",
+    "scripts/verify_experiments.py",
+    "scripts/execute_m7_notebook.py",
+    "source/experiments/06_comparative_experiments.ipynb",
+    "PLAN.md"
+  ],
+  "notebook_execution": {
+    "environment": ".venv",
+    "jupyter_kernel_transport_verified": false,
+    "method": "fresh-process IPython InteractiveShell, sequential all code cells",
+    "python_version": "3.11.15",
+    "reason": "Sandbox denies socket creation (PermissionError errno1)"
+  },
+  "limitations": [
+    "One seed only; no confidence intervals or repeated training.",
+    "Historical training duration/software versions and execution trace not recorded; verification versions/hashes saved now.",
+    "Train-only augmentation supported by saved config/current CLI routing/regression; no historical per-batch trace.",
+    "No causal attribution to vanishing gradients, overfitting or distribution shift; no Test tuning.",
+    "Checkpoints intentionally ignored by Git; retain locally and package separately per submission policy.",
+    "All notebook cells executed via fresh-process IPython in .venv with rich outputs; standard Jupyter kernel transport is blocked by sandbox socket policy."
+  ],
+  "git": {
+    "branch": "develop",
+    "head_before": "81f686b7859f29412bdec7338fc1847035718326",
+    "commit_created": false,
+    "commit_hash": null,
+    "push": "NOT ATTEMPTED: no new commit",
+    "blocker": "git apply --cached failed: cannot create .git/index.lock (Read-only file system). No index changes.",
+    "unrelated_changes": "Existing M5-M6 source/tests/PLAN and smoke artifacts intentionally excluded. M7-only commit would depend on those still-uncommitted implementations."
+  },
+  "visual_review": {
+    "status": "PASS",
+    "scope": "Opened all eight generated charts in contact sheet and full prediction grid; readable labels, no blank/cropped/overlapping content, contrast and consistent experiment colors checked."
+  },
+  "artifact_changes": {
+    "created": [
+      "scripts/verify_experiments.py",
+      "scripts/execute_m7_notebook.py",
+      "results/metrics/test_prediction_details.csv",
+      "results/metrics/m7_artifact_manifest.json",
+      "results/metrics/m7_verification_report.txt",
+      "results/metrics/m7_verification_summary.json",
+      "results/figures/test_predictions.png"
+    ],
+    "updated": [
+      "PLAN.md",
+      "source/experiments/06_comparative_experiments.ipynb",
+      "results/metrics/experiment_comparison.csv",
+      "results/metrics/experiment_comparison.json",
+      "results/metrics/final_test_metrics.json",
+      "results/figures/initialization_train_loss.png",
+      "results/figures/initialization_val_loss.png",
+      "results/figures/activation_comparison.png",
+      "results/figures/augmentation_effect.png",
+      "results/figures/validation_metrics_comparison.png",
+      "results/figures/best_model_training_curves.png",
+      "results/figures/test_confusion_matrix.png"
+    ],
+    "preserved": "Raw data, splits, algorithms M1-M6, E1-E5 configs/histories/checkpoints; all prior Final Test numerical values retained."
+  },
+  "integrity": {
+    "protected_files": 1384,
+    "unchanged": true
+  }
+}

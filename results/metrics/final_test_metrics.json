@@ -1,0 +1,42 @@
+{
+  "run_name": "E5_relu_he_no_aug",
+  "best_epoch": 24,
+  "split": "test",
+  "loss": 0.5843423986375456,
+  "accuracy": 0.83984375,
+  "precision": 0.8,
+  "recall": 0.90625,
+  "f1": 0.8498168498168498,
+  "tp": 116.0,
+  "tn": 99.0,
+  "fp": 29.0,
+  "fn": 12.0,
+  "model_configuration": {
+    "seed": 42,
+    "image_size": [
+      64,
+      64
+    ],
+    "image_channels": 3,
+    "num_classes": 2,
+    "hidden_dims": [
+      128,
+      64
+    ],
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "epochs": 30,
+    "activation": "relu",
+    "initialization": "he_normal",
+    "optimizer": "Adam",
+    "loss": "BCEWithLogitsLoss",
+    "device": "cpu",
+    "num_workers": 0,
+    "run_name": "E5_relu_he_no_aug",
+    "augmentation_enabled": false
+  },
+  "checkpoint_path": "results/checkpoints/E5_relu_he_no_aug.pt",
+  "number_of_samples": 256,
+  "accuracy_percentage": 83.984375,
+  "classification_threshold": 0.5
+}

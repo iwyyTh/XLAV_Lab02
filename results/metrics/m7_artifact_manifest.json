@@ -1,0 +1,138 @@
+{
+  "created_at": "2026-11-24T15:16:14.901590+00:00",
+  "python": "3.11.15",
+  "torch": "2.13.0+cu130",
+  "inputs": {
+    "results/configs/E1_relu_normal_aug.json": "fb4caf2a4a0b0fd9ff780fcae546b714980f58ae41e79fe29ab25f449ca7c042",
+    "results/histories/E1_relu_normal_aug.json": "c49d0518f8073c7a61b251730ca3451302f2ea55e2f99b17343c234301b3c359",
+    "results/checkpoints/E1_relu_normal_aug.pt": "b6b997750bf225748aa8034f573eba3a63bf64bb84330785264e5ea4fc4dcadc",
+    "results/configs/E2_relu_xavier_aug.json": "a78bcab33e349b179300f1c11ded4ebeaf37bb0803d374360d400ea1367589dc",
+    "results/histories/E2_relu_xavier_aug.json": "27f912b880abc645a109c085fbd489ec5bfba8eccd48392f2e7b4d186f98ea1c",
+    "results/checkpoints/E2_relu_xavier_aug.pt": "ae0b6319e1657719f45a25c9291fb1fd16b831773db3be73b6509ae8f66ebcbc",
+    "results/configs/E3_relu_he_aug.json": "0914c789dfac0f290afb3d8914e0b8b7b965f92e6fb7647586ded8033181eb90",
+    "results/histories/E3_relu_he_aug.json": "19167975cf1a9a76a8d41a39bed8a3ae77e741a670dc6eca3142a5262416edd3",
+    "results/checkpoints/E3_relu_he_aug.pt": "3b650ca6e899c0fa2a0f8c404afdaa8182e5426792c97e61afe882c750ff6dfe",
+    "results/configs/E4_sigmoid_xavier_aug.json": "77b29ff3d7559955927655abff8e99ddeac3fb037b2718214d7331d6ab262dc2",
+    "results/histories/E4_sigmoid_xavier_aug.json": "877eb455408f056e6c25357771fb713b909f998a627985fabb5dcf686d8bf609",
+    "results/checkpoints/E4_sigmoid_xavier_aug.pt": "ed542889948410cdd03187f0ded39d3d03b74ecece0df99bb63e5f92401ef52c",
+    "results/configs/E5_relu_he_no_aug.json": "2e459cfe785c96f52e85f8daf468c2c6642fa755cc62a0f6b9b0c25b71c3ac1b",
+    "results/histories/E5_relu_he_no_aug.json": "c3cf165ca6f2e3f5b0aa5309851029ce3bed792d039acf90e307cabef3adaaa1",
+    "results/checkpoints/E5_relu_he_no_aug.pt": "6c19e8ed9360a2b7914986af06c5c8cb80973837d5b47079cc1e540a8021bab2",
+    "data/splits/train.csv": "403f7a73981fc7a6de331ef4f9616d5f25d02e5dc760d0540d1880634d74219b",
+    "data/splits/test.csv": "356b8ec0e473f34a610ca1632679a554abbc9b46bc1941af159c8df438e1dcfc",
+    "data/splits/val.csv": "646cf2e38ea82c9ed3e4681a28f317c5798f6c214d2530fbfca74a4392a2e99d",
+    "source/model.py": "7f521dca23346bb68b2410440b2955b22cc946e492f31a2f7f5eda199ef25816",
+    "source/train.py": "0abe1083aa5554dd5446b1f648d1ce441a1ab32c2d4d7c2e6ad994e9da265e62",
+    "source/trainer.py": "8fe8218b45b8d31ce5f434e1a77983df789fb133a677a15f95472749a6c163a1",
+    "source/predict.py": "c99be075c5a61070cef7b07c38ae342cd06e24a537ab34e7f8cfc3d9e5cdc378",
+    "source/metrics.py": "8e34fcb8e9db85dbfa8179ffb341232be7026c67748600c51c89d4f2e901a7d5",
+    "source/dataset.py": "783d14c28ffbdf3893bd527d459e7bf94969fe2e0b901763a1b56ab7abd69500",
+    "source/preprocessing.py": "580962cd79a69b87e699888358a30e8bcf6c8fd6901f763ca5a17c5d95e74f0f",
+    "source/augmentation.py": "c72f849300fd0232d8e0f7f04a7815eb8b8b871a000847a7376777276550aca7"
+  },
+  "outputs": {
+    "results/metrics/experiment_comparison.csv": "0a4cf3b8719604191a5076c1ca7e18e05545854ef1bad5407048f18e9932c718",
+    "results/metrics/experiment_comparison.json": "a65420bb4b63f6883921c43655b6fd85a3ff551666697d6c58671d7ac3c6e60a",
+    "results/metrics/final_test_metrics.json": "abac4b09fbb52f224b3637eb5e7fbedd7e0655c22c1e5eda81ddbb888626dce3",
+    "results/metrics/test_prediction_details.csv": "97864c80171e90b0e7479e97d2be20a70d847e951cedb71e749ce9237d5633ac",
+    "results/figures/initialization_train_loss.png": "3518f7811903ddfc2d22c46c44bd7ffef1f093768ebf9e3e9aaaf5fd8015eb9e",
+    "results/figures/initialization_val_loss.png": "b1260a3f6371fa406188465c28d72f536f77691761738502645406b5b3e06ff3",
+    "results/figures/activation_comparison.png": "dfad3fb40d96313dd31d8cce9155995485f7de2902082c4594530a88bcc4af81",
+    "results/figures/augmentation_effect.png": "1934937881488fd22926559f6e94c572b381282b6781e1e84556bb944ce77f87",
+    "results/figures/validation_metrics_comparison.png": "4e7b13cdcd35f86510eb96ddfe6e3de76dd6666f22626661ee18a2de9b7fd39d",
+    "results/figures/best_model_training_curves.png": "888fe599983e2e434860cd3b7c395314b7b4f9a540b3b1c22d03fe7bc4ccb2bb",
+    "results/figures/test_confusion_matrix.png": "ab76563a523812369e3057677ba3c7b3fc05fcf0b320aaa18473774b244db96e",
+    "results/figures/test_predictions.png": "86a12ec61310af89d62cefd55e00645d025b1866ac547cecef2df72110c78707"
+  },
+  "restored_validation": {
+    "E1": {
+      "loss": 2.082580037169404,
+      "accuracy": 0.8791208791208791,
+      "precision": 0.9176470588235294,
+      "recall": 0.8387096774193549,
+      "f1": 0.8764044943820225,
+      "tp": 78.0,
+      "tn": 82.0,
+      "fp": 7.0,
+      "fn": 15.0
+    },
+    "E2": {
+      "loss": 0.2554021259094333,
+      "accuracy": 0.9065934065934066,
+      "precision": 0.88,
+      "recall": 0.946236559139785,
+      "f1": 0.9119170984455959,
+      "tp": 88.0,
+      "tn": 77.0,
+      "fp": 12.0,
+      "fn": 5.0
+    },
+    "E3": {
+      "loss": 0.27161499497654673,
+      "accuracy": 0.8846153846153846,
+      "precision": 0.8461538461538461,
+      "recall": 0.946236559139785,
+      "f1": 0.8934010152284264,
+      "tp": 88.0,
+      "tn": 73.0,
+      "fp": 16.0,
+      "fn": 5.0
+    },
+    "E4": {
+      "loss": 0.6929057174986535,
+      "accuracy": 0.510989010989011,
+      "precision": 0.510989010989011,
+      "recall": 1.0,
+      "f1": 0.6763636363636364,
+      "tp": 93.0,
+      "tn": 0.0,
+      "fp": 89.0,
+      "fn": 0.0
+    },
+    "E5": {
+      "loss": 0.10315037842144023,
+      "accuracy": 0.967032967032967,
+      "precision": 0.9484536082474226,
+      "recall": 0.989247311827957,
+      "f1": 0.968421052631579,
+      "tp": 92.0,
+      "tn": 84.0,
+      "fp": 5.0,
+      "fn": 1.0
+    }
+  },
+  "restored_loss_tolerance": {
+    "relative": 1e-05,
+    "absolute": 1e-05,
+    "reason": "float32 reductions can vary with CPU threading; confusion counts must match"
+  },
+  "selected_prediction_paths": {
+    "TN": [
+      "data/raw/horses/test__horse3-541.png",
+      "data/raw/horses/test__horse1-276.png",
+      "data/raw/horses/test__horse5-018.png",
+      "data/raw/horses/test__horse5-259.png"
+    ],
+    "TP": [
+      "data/raw/humans/test__valhuman04-15.png",
+      "data/raw/humans/test__valhuman01-24.png",
+      "data/raw/humans/test__valhuman01-12.png",
+      "data/raw/humans/test__valhuman03-20.png"
+    ],
+    "FP": [
+      "data/raw/horses/test__horse4-232.png",
+      "data/raw/horses/test__horse3-498.png",
+      "data/raw/horses/test__horse4-548.png",
+      "data/raw/horses/test__horse2-112.png"
+    ],
+    "FN": [
+      "data/raw/humans/test__valhuman02-17.png",
+      "data/raw/humans/test__valhuman03-22.png",
+      "data/raw/humans/test__valhuman01-01.png",
+      "data/raw/humans/test__valhuman03-23.png"
+    ]
+  },
+  "selection_seed": 42,
+  "training_runtime_versions": "Not recorded per historical run; versions above describe verification only",
+  "historical_augmentation_evidence": "Saved flags + current CLI train/eval transform routing + regression, not a historical execution trace"
+}
