@@ -1,0 +1,25 @@
+{
+  "root": "/home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02",
+  "seed": 42,
+  "image_size": [
+    64,
+    64
+  ],
+  "image_channels": 3,
+  "num_classes": 2,
+  "hidden_dims": [
+    128,
+    64
+  ],
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "epochs": 2,
+  "activation": "relu",
+  "initialization": "he_normal",
+  "optimizer": "Adam",
+  "loss": "BCEWithLogitsLoss",
+  "device": "cpu",
+  "num_workers": 0,
+  "run_name": "smoke_no_aug",
+  "augmentation_enabled": false
+}

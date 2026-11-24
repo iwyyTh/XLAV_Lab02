@@ -1,0 +1,235 @@
+M6 — TRAINING / EVALUATION / INFERENCE VERIFICATION
+Date: 2026-11-24T21:42:49.039852+07:00
+Environment: {'python': '3.11.15', 'pytorch': '2.13.0+cu130', 'pytest': '9.2.0', 'opencv': '4.14.0', 'numpy': '2.4.6', 'sklearn': '1.9.0'}
+Command: MPLBACKEND=Agg .venv/bin/python -m pytest source/tests/test_metrics.py source/tests/test_trainer.py source/tests/test_train.py source/tests/test_predict.py source/tests/test_visualization.py -v --tb=short --durations=10 --junitxml=/tmp/m6-pytest.xml
+M6: 104 collected | {'PASS': 104, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0} | 11.26s
+
+RESULTS BY GROUP
+test_metrics: {'PASS': 38, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_trainer: {'PASS': 16, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_train: {'PASS': 29, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_predict: {'PASS': 17, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_visualization: {'PASS': 4, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+
+CONTRACTS
+metrics: 1D same-shaped nonempty tensors, finite probabilities[0,1], binary targets; >=threshold; Human positive; zero-division=0; rates[0,1], counts returned as floats
+epochs: train_epoch resets each batch and updates; evaluate no_grad/eval/no updates; loss weighted by number of samples; metrics aggregated globally from detached CPU tensors
+fit: Positive integer epochs excluding bool; strict lower validation loss wins, earliest tie preserved; returns train/val lists with epoch and metrics plus best_epoch/best_val_loss; checkpoint and history dirs created
+checkpoint: epoch,model_state_dict,optimizer_state_dict,best_val_loss. Config saved separately by CLI; safe weights_only=True inference load via CPU then config.device
+config: Dataclass fields filtered from JSON, image_size tuple restored, root replaced by current CONFIG.root, device override or current CONFIG.device
+visualization: Five train/val metric curves with best marker; confusion matrix[[TN,FP],[FN,TP]], x predicted, y true; Horse0/Human1; closes successful figures
+
+INDEPENDENT EVIDENCE
+Metrics: sklearn oracle including confusion matrix and hand-defined boundary cases; invalid shapes/empty/binary/range/nonfinite/threshold checks; no input mutation.
+Epoch fixture: five samples batches2/2/1, fixed logits[-2,2,2,-2,2], targets[0,1,0,1,0]. Expected TP=1,TN=1,FP=2,FN=1; accuracy=.4,precision=1/3,recall=.5,F1=.4. F1 is not mean of per-batch F1. Stable per-sample BCE formula independently checks weighted loss.
+Training starts with deliberately stale gradients999; lr0 isolates outputs and final gradient must equal last-batch analytical gradient. Separate Adam/custom-activation test confirms actual updates.
+Evaluation checks eval mode/no_grad, forbids Tensor.backward, verifies unchanged parameters/no grads and repeated identical results.
+Fit mocked validation losses[.8,.3,.3,.5]: exactly two checkpoint writes, best epoch2, saved weight marker2; tie and worse loss do not overwrite. History JSON equals returned history.
+CLI tests16 activation/init/augmentation combinations, defaults/invalid settings, Python+NumPy+torch seeds, copied CONFIG, saved JSON, Adam/BCE parameters, val-only selection and run output paths.
+Prediction tests exact saved parameters, safe load options, current root/size/activation/dims, opaque-red BGRA -> RGB input[1,3,8,6], no_grad, logits[-2,0,2] and fixed threshold/class mapping, missing/corrupt files, invalid split.
+Visualization inspects Matplotlib line data/marker, matrix pixels/count annotations/axis labels, validates PNG files with Pillow, and checks figures closed on success.
+
+END-TO-END SMOKE
+{"train_samples": 8, "val_samples": 6, "epochs": 2, "best_epoch": 2, "best_val_loss": 0.6937192678451538, "restored_val_loss": 0.6937192678451538, "prediction": {"label": 0, "class_name": "horse", "human_probability": 0.4709196090698242}}
+Checkpoint restore val loss also compared with independent stable BCE formula over six validation samples; prediction agrees with restored model sigmoid. Test files use tmp_path; original artifacts never overwritten.
+
+REGRESSION
+Command: MPLBACKEND=Agg .venv/bin/python -m pytest source/tests/ -v --tb=short --durations=10 --junitxml=/tmp/m6-regression.xml
+529 collected | {'PASS': 529, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0} | 20.38s
+test_activations: {'PASS': 100, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_augmentation: {'PASS': 59, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_dataset: {'PASS': 54, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_initialization: {'PASS': 128, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_metrics: {'PASS': 38, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_model: {'PASS': 58, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_predict: {'PASS': 17, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_preprocessing: {'PASS': 26, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_train: {'PASS': 29, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_trainer: {'PASS': 16, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+test_visualization: {'PASS': 4, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+Regression includes M6 again; counts across runs must not be added as unique tests.
+
+FAILURES / ROOT CAUSE / EXPECTED-ACTUAL / FIXES
+No failed tests, no mandatory implementation defect detected in tested scope. Therefore no failing testcase/root cause or mandatory patch to report.
+P2 suggestions below are documentation/optional contract improvements, not failed requirements:
+{"priority": "P2", "kind": "documentation", "location": "source/trainer.py:train_epoch/evaluate; source/predict.py:predict", "detail": "Clarify mean-reduced BCE criterion, model already on requested device, and fixed0.5 inference threshold in docstrings. Current tested call sites satisfy these assumptions.", "blocking": false}
+{"priority": "P2", "kind": "optional_validation", "location": "source/visualization.py:plot_history/plot_confusion_matrix", "detail": "If accepting user-supplied histories outside fit(), define schema/epoch alignment/count validation and exception cleanup explicitly. No failure found for tested valid inputs.", "blocking": false}
+
+UNVERIFIED SCOPE
+CPU runtime verified. CUDA unavailable; no GPU test collected or claimed PASS. Metrics tested float32/float64; M6 training/inference smoke uses float32.
+Smoke:8 real Train images,6 real Validation images,2 epochs, test-local image_size8x8 and hidden_dims[8,4]. Official CONFIG/default architecture/hyperparameters unchanged. This verifies wiring, not model quality.
+No real Test-set inference/evaluation/model selection in M6. Existing regression M1-M5 reads Test images for structural/data pipeline checks only; no held-out accuracy/loss used for tuning.
+evaluate_checkpoint builds all loader metadata through existing build_loaders; route tests inject val-only mapping. Smoke directly constructs only Train/Val datasets. A full182-image checkpoint validation run was not repeated.
+Training CLI orchestration mocked; parser, seed, transforms, optimizer, output paths, config persistence tested. Did not invoke a subprocess CLI/full training for every argument combination.
+criterion contract: mean-reduced scalar BCEWithLogitsLoss, one binary target per sample. Custom sum/none reductions, pos_weight interpretations, mixed precision and gradient accumulation are not tested.
+fit checkpoint contains epoch, model_state_dict, optimizer_state_dict, best_val_loss; architecture/config is a separate JSON from CLI. Resume training including RNG/sampler/optimizer restoration is not verified.
+Inference threshold is fixed0.5 with >=, class names are singular horse/human. Custom threshold exists only in binary_metrics; no inference threshold argument is implemented or claimed.
+Visualization verifies valid history/matrix inputs and missing-key errors. Empty histories, unequal epoch sequences, negative/fractional confusion counts, exceptions during save and malformed schema policies remain outside the documented contract.
+No notebook rerun, M7 experiments, full30-epoch training, accuracy benchmark or convergence claim. Existing smoke artifacts/checkpoints unchanged.
+
+DEFINITION OF DONE
+M6 technical implementation/testing complete for verified contracts and CPU smoke. Real Test-set quality evaluation remains after M7 model selection, as requested; do not claim final lab evaluation complete.
+Protected files unchanged: 1403 source/data/references/results files. No algorithm/config/dataset/artifact edits, M7 experiments, commit or push.
+
+RAW M6 PYTEST OUTPUT
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02
+plugins: anyio-4.14.2
+collecting ... collected 104 items
+
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets0-probs0-0.5-dtype0] PASSED [  0%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets0-probs0-0.5-dtype1] PASSED [  1%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets1-probs1-0.5-dtype0] PASSED [  2%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets1-probs1-0.5-dtype1] PASSED [  3%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets2-probs2-0.5-dtype0] PASSED [  4%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets2-probs2-0.5-dtype1] PASSED [  5%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets3-probs3-0.5-dtype0] PASSED [  6%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets3-probs3-0.5-dtype1] PASSED [  7%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets4-probs4-0.5-dtype0] PASSED [  8%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets4-probs4-0.5-dtype1] PASSED [  9%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets5-probs5-0.5-dtype0] PASSED [ 10%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets5-probs5-0.5-dtype1] PASSED [ 11%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets6-probs6-0.5-dtype0] PASSED [ 12%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets6-probs6-0.5-dtype1] PASSED [ 13%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets7-probs7-0.75-dtype0] PASSED [ 14%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets7-probs7-0.75-dtype1] PASSED [ 15%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets8-probs8-0-dtype0] PASSED [ 16%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets8-probs8-0-dtype1] PASSED [ 17%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets9-probs9-1-dtype0] PASSED [ 18%]
+source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets9-probs9-1-dtype1] PASSED [ 19%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y0-p0] PASSED [ 20%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y1-p1] PASSED [ 21%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y2-p2] PASSED [ 22%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y3-p3] PASSED [ 23%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y4-p4] PASSED [ 24%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y5-p5] PASSED [ 25%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y6-p6] PASSED [ 25%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y7-p7] PASSED [ 26%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y8-p8] PASSED [ 27%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y9-p9] PASSED [ 28%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y10-p10] PASSED [ 29%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y11-p11] PASSED [ 30%]
+source/tests/test_metrics.py::test_invalid_tensor_values_and_shapes[y12-p12] PASSED [ 31%]
+source/tests/test_metrics.py::test_invalid_threshold[-0.01] PASSED       [ 32%]
+source/tests/test_metrics.py::test_invalid_threshold[1.01] PASSED        [ 33%]
+source/tests/test_metrics.py::test_invalid_threshold[nan] PASSED         [ 34%]
+source/tests/test_metrics.py::test_invalid_threshold[inf] PASSED         [ 35%]
+source/tests/test_metrics.py::test_invalid_threshold[-inf] PASSED        [ 36%]
+source/tests/test_trainer.py::test_weighted_loss_global_metrics_modes_detach_and_zero_grad[cpu-False] PASSED [ 37%]
+source/tests/test_trainer.py::test_weighted_loss_global_metrics_modes_detach_and_zero_grad[cpu-True] PASSED [ 38%]
+source/tests/test_trainer.py::test_training_custom_backward_updates_parameters PASSED [ 39%]
+source/tests/test_trainer.py::test_empty_loader_and_nonfinite_loss[None-False] PASSED [ 40%]
+source/tests/test_trainer.py::test_empty_loader_and_nonfinite_loss[None-True] PASSED [ 41%]
+source/tests/test_trainer.py::test_empty_loader_and_nonfinite_loss[nan-False] PASSED [ 42%]
+source/tests/test_trainer.py::test_empty_loader_and_nonfinite_loss[nan-True] PASSED [ 43%]
+source/tests/test_trainer.py::test_empty_loader_and_nonfinite_loss[inf-False] PASSED [ 44%]
+source/tests/test_trainer.py::test_empty_loader_and_nonfinite_loss[inf-True] PASSED [ 45%]
+source/tests/test_trainer.py::test_fit_order_best_checkpoint_ties_history_and_directories PASSED [ 46%]
+source/tests/test_trainer.py::test_fit_invalid_epochs[0] PASSED          [ 47%]
+source/tests/test_trainer.py::test_fit_invalid_epochs[-1] PASSED         [ 48%]
+source/tests/test_trainer.py::test_fit_invalid_epochs[True] PASSED       [ 49%]
+source/tests/test_trainer.py::test_fit_invalid_epochs[1.5] PASSED        [ 50%]
+source/tests/test_trainer.py::test_fit_invalid_epochs[2] PASSED          [ 50%]
+source/tests/test_trainer.py::test_fit_invalid_epochs[None] PASSED       [ 51%]
+source/tests/test_train.py::test_parser_defaults PASSED                  [ 52%]
+source/tests/test_train.py::test_parser_invalid_arguments[--activation-tanh] PASSED [ 53%]
+source/tests/test_train.py::test_parser_invalid_arguments[--initialization-uniform] PASSED [ 54%]
+source/tests/test_train.py::test_parser_invalid_arguments[--device-invalid] PASSED [ 55%]
+source/tests/test_train.py::test_parser_invalid_arguments[--epochs-abc] PASSED [ 56%]
+source/tests/test_train.py::test_parser_invalid_arguments[--unknown-x] PASSED [ 57%]
+source/tests/test_train.py::test_main_rejects_invalid_settings_before_loaders[args0] PASSED [ 58%]
+source/tests/test_train.py::test_main_rejects_invalid_settings_before_loaders[args1] PASSED [ 59%]
+source/tests/test_train.py::test_main_rejects_invalid_settings_before_loaders[args2] PASSED [ 60%]
+source/tests/test_train.py::test_main_rejects_invalid_settings_before_loaders[args3] PASSED [ 61%]
+source/tests/test_train.py::test_main_rejects_invalid_settings_before_loaders[args4] PASSED [ 62%]
+source/tests/test_train.py::test_main_rejects_invalid_settings_before_loaders[args5] PASSED [ 63%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[False-normal-relu] PASSED [ 64%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[False-normal-sigmoid] PASSED [ 65%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[False-fan_in_normal-relu] PASSED [ 66%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[False-fan_in_normal-sigmoid] PASSED [ 67%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[False-xavier_normal-relu] PASSED [ 68%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[False-xavier_normal-sigmoid] PASSED [ 69%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[False-he_normal-relu] PASSED [ 70%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[False-he_normal-sigmoid] PASSED [ 71%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[True-normal-relu] PASSED [ 72%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[True-normal-sigmoid] PASSED [ 73%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[True-fan_in_normal-relu] PASSED [ 74%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[True-fan_in_normal-sigmoid] PASSED [ 75%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[True-xavier_normal-relu] PASSED [ 75%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[True-xavier_normal-sigmoid] PASSED [ 76%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[True-he_normal-relu] PASSED [ 77%]
+source/tests/test_train.py::test_main_orchestration_and_saved_config[True-he_normal-sigmoid] PASSED [ 78%]
+source/tests/test_train.py::test_set_seed_all_three_rngs PASSED          [ 79%]
+source/tests/test_predict.py::test_load_config_portability_fields_and_device_override PASSED [ 80%]
+source/tests/test_predict.py::test_load_model_exact_parameters_mode_and_safe_load PASSED [ 81%]
+source/tests/test_predict.py::test_prediction_preprocessing_batch_no_grad_and_threshold[-2.0-0-horse] PASSED [ 82%]
+source/tests/test_predict.py::test_prediction_preprocessing_batch_no_grad_and_threshold[0.0-1-human] PASSED [ 83%]
+source/tests/test_predict.py::test_prediction_preprocessing_batch_no_grad_and_threshold[2.0-1-human] PASSED [ 84%]
+source/tests/test_predict.py::test_missing_and_invalid_files[missing_image] PASSED [ 85%]
+source/tests/test_predict.py::test_missing_and_invalid_files[invalid_image] PASSED [ 86%]
+source/tests/test_predict.py::test_missing_and_invalid_files[missing_checkpoint] PASSED [ 87%]
+source/tests/test_predict.py::test_missing_and_invalid_files[missing_state] PASSED [ 88%]
+source/tests/test_predict.py::test_missing_and_invalid_files[wrong_shapes] PASSED [ 89%]
+source/tests/test_predict.py::test_missing_and_invalid_files[corrupt_checkpoint] PASSED [ 90%]
+source/tests/test_predict.py::test_invalid_split_before_loading[train] PASSED [ 91%]
+source/tests/test_predict.py::test_invalid_split_before_loading[invalid] PASSED [ 92%]
+source/tests/test_predict.py::test_invalid_split_before_loading[] PASSED [ 93%]
+source/tests/test_predict.py::test_invalid_split_before_loading[None] PASSED [ 94%]
+source/tests/test_predict.py::test_evaluate_checkpoint_uses_only_val_and_preprocessing PASSED [ 95%]
+source/tests/test_predict.py::test_end_to_end_real_train_val_subset_restore_prediction_and_figures PASSED [ 96%]
+source/tests/test_visualization.py::test_history_curves_marker_directory_and_close PASSED [ 97%]
+source/tests/test_visualization.py::test_confusion_orientation_counts_labels_directory_and_close PASSED [ 98%]
+source/tests/test_visualization.py::test_missing_required_keys[plot_history] PASSED [ 99%]
+source/tests/test_visualization.py::test_missing_required_keys[plot_confusion_matrix] PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /home/kjwyy/miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+-------------------- generated xml file: /tmp/m6-pytest.xml --------------------
+============================= slowest 10 durations =============================
+1.29s call     source/tests/test_trainer.py::test_weighted_loss_global_metrics_modes_detach_and_zero_grad[cpu-False]
+0.85s call     source/tests/test_predict.py::test_end_to_end_real_train_val_subset_restore_prediction_and_figures
+0.50s call     source/tests/test_visualization.py::test_history_curves_marker_directory_and_close
+0.11s call     source/tests/test_visualization.py::test_confusion_orientation_counts_labels_directory_and_close
+0.03s call     source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets0-probs0-0.5-dtype0]
+0.02s call     source/tests/test_trainer.py::test_training_custom_backward_updates_parameters
+0.01s call     source/tests/test_predict.py::test_prediction_preprocessing_batch_no_grad_and_threshold[-2.0-0-horse]
+0.01s call     source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets0-probs0-0.5-dtype1]
+0.01s call     source/tests/test_trainer.py::test_weighted_loss_global_metrics_modes_detach_and_zero_grad[cpu-True]
+0.01s call     source/tests/test_metrics.py::test_metrics_match_independent_sklearn_and_preserve_inputs[targets3-probs3-0.5-dtype0]
+======================= 104 passed, 1 warning in 11.26s ========================
+
+
+RAW REGRESSION SUMMARY
+source/tests/test_visualization.py::test_missing_required_keys[plot_confusion_matrix] PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /home/kjwyy/miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+------------------ generated xml file: /tmp/m6-regression.xml ------------------
+============================= slowest 10 durations =============================
+3.84s call     source/tests/test_dataset.py::TestDataLoader::test_l01_l11_all_real_images_once
+3.50s call     source/tests/test_model.py::TestOptimization::test_fixed_real_batch_learning_100_steps[float64-cpu]
+1.64s call     source/tests/test_model.py::TestOptimization::test_fixed_real_batch_learning_100_steps[float32-cpu]
+0.78s call     source/tests/test_predict.py::test_end_to_end_real_train_val_subset_restore_prediction_and_figures
+0.60s call     source/tests/test_model.py::TestEndToEnd::test_real_loaders_train_only_augmentation_and_step[float64-cpu]
+0.56s call     source/tests/test_model.py::TestEndToEnd::test_real_loaders_train_only_augmentation_and_step[float32-cpu]
+0.55s call     source/tests/test_activations.py::TestCustomModule::test_sequential_linear_backprop_and_optimizer_update[float32-cpu-relu]
+0.55s call     source/tests/test_initialization.py::TestSignalPropagation::test_ten_layers_same_input_seed_and_sampling[float64-cpu]
+0.50s call     source/tests/test_augmentation.py::TestDataLoaderIntegration::test_real_batches_train_only_eval_deterministic_and_labels
+0.50s call     source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-scalar]
+======================= 529 passed, 1 warning in 20.38s ========================
