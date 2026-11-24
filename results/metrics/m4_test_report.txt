@@ -1,0 +1,264 @@
+M4 — WEIGHT INITIALIZATION: INDEPENDENT TEST REPORT
+Date: 2026-11-24T15:45:24.023469+07:00
+Command: .venv/bin/python -m pytest source/tests/test_initialization.py -v --tb=short --durations=10 --junitxml=/tmp/m4-pytest.xml
+Environment: {'python': '3.11.15', 'pytorch': '2.13.0+cu130', 'pytest': '9.2.0'}
+CPU float32/float64; CUDA unavailable.
+Collected: 128 | {'PASS': 128, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0} | Duration: 3.68s
+
+RESULTS BY GROUP
+Distribution: {'PASS': 54, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+Bias: {'PASS': 16, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+Preservation: {'PASS': 16, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+Reproducibility: {'PASS': 8, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+Errors: {'PASS': 20, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+SignalPropagation: {'PASS': 6, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+Integration: {'PASS': 8, 'FAIL': 0, 'SKIP': 0, 'ERROR': 0}
+
+CONTRACT / REFERENCE REVIEW
+{'signature': 'initialize_weights(module: torch.nn.Module, method: str = "he_normal") -> None', 'linear_weight_layout': '[out_features, in_features]', 'non_linear': 'No-op for supported method; invalid method raises ValueError before module type check; use model.apply for recursion', 'mutation': 'In-place normal_ and bias.zero_ under torch.no_grad(); preserve Parameter and storage identity'}
+Lecturer simple FCLayer: randn(in,out), variance=1. Image FCLayer: randn(in,out)/sqrt(in), variance=1/fan_in; comment Xavier/He is inaccurate.
+Current nn.Linear layout [out,in]; implementation reads in_features/out_features correctly. Xavier gain=1, He fan_in for ReLU; bias=0 is intentional.
+
+STATISTICAL MEASUREMENTS
+mean: 6*expected_std/sqrt(N); sample std (correction=1): 6*expected_std/sqrt(2*(N-1)), approximate six-standard-error bound. Small N=64 deliberately has wider tolerance. Additional matched-draw scaling tests check formulas without sampling uncertainty.
+Each row: dtype/device | method | in->out | expected mean/std | actual mean/std | tolerance mean/std
+torch.float32/cpu | normal | 512->512 | 0 / 1 | -0.0002399951261 / 1.002238102 | 0.01171875 / 0.008286423397
+torch.float32/cpu | fan_in_normal | 512->512 | 0 / 0.04419417382 | -1.060638624e-05 / 0.04429308412 | 0.0005179004745 / 0.000366211636
+torch.float32/cpu | xavier_normal | 512->512 | 0 / 0.04419417382 | -1.060638624e-05 / 0.04429308412 | 0.0005179004745 / 0.000366211636
+torch.float32/cpu | he_normal | 512->512 | 0 / 0.0625 | -1.499969538e-05 / 0.06263988136 | 0.000732421875 / 0.0005179014623
+torch.float32/cpu | normal | 512->128 | 0 / 1 | -4.729047707e-05 / 1.006000671 | 0.0234375 / 0.01657294163
+torch.float32/cpu | fan_in_normal | 512->128 | 0 / 0.04419417382 | -2.089964778e-06 / 0.04445936775 | 0.001035800949 / 0.000732427463
+torch.float32/cpu | xavier_normal | 512->128 | 0 / 0.05590169944 | -2.643613631e-06 / 0.05623714648 | 0.001310196081 / 0.0009264556016
+torch.float32/cpu | he_normal | 512->128 | 0 / 0.0625 | -2.955654817e-06 / 0.06287504194 | 0.00146484375 / 0.001035808852
+torch.float32/cpu | normal | 128->512 | 0 / 1 | -4.729047707e-05 / 1.006000671 | 0.0234375 / 0.01657294163
+torch.float32/cpu | fan_in_normal | 128->512 | 0 / 0.08838834765 | -4.179929556e-06 / 0.0889187355 | 0.002071601898 / 0.001464854926
+torch.float32/cpu | xavier_normal | 128->512 | 0 / 0.05590169944 | -2.643613631e-06 / 0.05623714648 | 0.001310196081 / 0.0009264556016
+torch.float32/cpu | he_normal | 128->512 | 0 / 0.125 | -5.911309634e-06 / 0.1257500839 | 0.0029296875 / 0.002071617703
+torch.float32/cpu | normal | 12288->128 | 0 / 1 | -0.0004783736928 / 1.000163636 | 0.004784159654 / 0.003382912809
+torch.float32/cpu | fan_in_normal | 12288->128 | 0 / 0.009021097956 | -4.315455912e-06 / 0.009022573974 | 4.315837288e-05 / 3.051758783e-05
+torch.float32/cpu | xavier_normal | 12288->128 | 0 / 0.01269182706 | -6.071436278e-06 / 0.01269390434 | 6.071972697e-05 / 4.293534434e-05
+torch.float32/cpu | he_normal | 12288->128 | 0 / 0.01275775908 | -6.102976948e-06 / 0.01275984718 | 6.103515625e-05 / 4.315838659e-05
+torch.float32/cpu | normal | 128->64 | 0 / 1 | 0.006507190931 / 1.000378221 | 0.06629126074 / 0.04687786128
+torch.float32/cpu | fan_in_normal | 128->64 | 0 / 0.08838834765 | 0.0005751598753 / 0.08842177639 | 0.005859375 / 0.0041434567
+torch.float32/cpu | xavier_normal | 128->64 | 0 / 0.1020620726 | 0.0006641374326 / 0.1021006783 | 0.006765823467 / 0.004784451683
+torch.float32/cpu | he_normal | 128->64 | 0 / 0.125 | 0.0008133988664 / 0.1250472776 | 0.008286407592 / 0.005859732661
+torch.float32/cpu | normal | 64->1 | 0 / 1 | 0.03282406536 / 1.057471399 | 0.75 / 0.5345224838
+torch.float32/cpu | fan_in_normal | 64->1 | 0 / 0.125 | 0.00410300817 / 0.1321839249 | 0.09375 / 0.06681531048
+torch.float32/cpu | xavier_normal | 64->1 | 0 / 0.1754116039 | 0.005757722021 / 0.1854927472 | 0.1315587029 / 0.09376144619
+torch.float32/cpu | he_normal | 64->1 | 0 / 0.1767766953 | 0.005802529406 / 0.1869362963 | 0.1325825215 / 0.09449111825
+torch.float64/cpu | normal | 512->512 | 0 / 1 | 8.80528214e-05 / 1.001811896 | 0.01171875 / 0.008286423397
+torch.float64/cpu | fan_in_normal | 512->512 | 0 / 0.04419417382 | 3.891421695e-06 / 0.04427424907 | 0.0005179004745 / 0.000366211636
+torch.float64/cpu | xavier_normal | 512->512 | 0 / 0.04419417382 | 3.891421695e-06 / 0.04427424907 | 0.0005179004745 / 0.000366211636
+torch.float64/cpu | he_normal | 512->512 | 0 / 0.0625 | 5.503301337e-06 / 0.0626132435 | 0.000732421875 / 0.0005179014623
+torch.float64/cpu | normal | 512->128 | 0 / 1 | -0.002663100714 / 1.003776507 | 0.0234375 / 0.01657294163
+torch.float64/cpu | fan_in_normal | 512->128 | 0 / 0.04419417382 | -0.0001176935359 / 0.04436107344 | 0.001035800949 / 0.000732427463
+torch.float64/cpu | xavier_normal | 512->128 | 0 / 0.05590169944 | -0.0001488718557 / 0.05611281261 | 0.001310196081 / 0.0009264556016
+torch.float64/cpu | he_normal | 512->128 | 0 / 0.0625 | -0.0001664437947 / 0.06273603171 | 0.00146484375 / 0.001035808852
+torch.float64/cpu | normal | 128->512 | 0 / 1 | -0.002663100714 / 1.003776507 | 0.0234375 / 0.01657294163
+torch.float64/cpu | fan_in_normal | 128->512 | 0 / 0.08838834765 | -0.0002353870718 / 0.08872214689 | 0.002071601898 / 0.001464854926
+torch.float64/cpu | xavier_normal | 128->512 | 0 / 0.05590169944 | -0.0001488718557 / 0.05611281261 | 0.001310196081 / 0.0009264556016
+torch.float64/cpu | he_normal | 128->512 | 0 / 0.125 | -0.0003328875893 / 0.1254720634 | 0.0029296875 / 0.002071617703
+torch.float64/cpu | normal | 12288->128 | 0 / 1 | -0.0006537372612 / 1.000212158 | 0.004784159654 / 0.003382912809
+torch.float64/cpu | fan_in_normal | 12288->128 | 0 / 0.009021097956 | -5.897427871e-06 / 0.009023011853 | 4.315837288e-05 / 3.051758783e-05
+torch.float64/cpu | xavier_normal | 12288->128 | 0 / 0.01269182706 | -8.297120264e-06 / 0.01269451973 | 6.071972697e-05 / 4.293534434e-05
+torch.float64/cpu | he_normal | 12288->128 | 0 / 0.01275775908 | -8.340222478e-06 / 0.01276046574 | 6.103515625e-05 / 4.315838659e-05
+torch.float64/cpu | normal | 128->64 | 0 / 1 | 0.004866556361 / 0.999241031 | 0.06629126074 / 0.04687786128
+torch.float64/cpu | fan_in_normal | 128->64 | 0 / 0.08838834765 | 0.0004301468755 / 0.08832126363 | 0.005859375 / 0.0041434567
+torch.float64/cpu | xavier_normal | 128->64 | 0 / 0.1020620726 | 0.0004966908287 / 0.1019846107 | 0.006765823467 / 0.004784451683
+torch.float64/cpu | he_normal | 128->64 | 0 / 0.125 | 0.0006083195452 / 0.1249051289 | 0.008286407592 / 0.005859732661
+torch.float64/cpu | normal | 64->1 | 0 / 1 | 0.1126682782 / 0.9635871513 | 0.75 / 0.5345224838
+torch.float64/cpu | fan_in_normal | 64->1 | 0 / 0.125 | 0.01408353477 / 0.1204483939 | 0.09375 / 0.06681531048
+torch.float64/cpu | xavier_normal | 64->1 | 0 / 0.1754116039 | 0.01976332338 / 0.1690243677 | 0.1315587029 / 0.09376144619
+torch.float64/cpu | he_normal | 64->1 | 0 / 0.1767766953 | 0.01991712588 / 0.1703397522 | 0.1325825215 / 0.09449111825
+
+SIGNAL PROPAGATION
+10 Linear(512,512) + custom ReLU; input 256x512; seed42 for input, reseed42 before each method, same layer constructor/draw schedule.
+Moments below are E[x^2] after ReLU, including input at index0; not centered variance.
+Predeclared qualitative bounds: Normal final/input>1e12; Fan-in final/input<0.02; He each layer/input between0.25 and4. These are broad sanity checks, not universal guarantees.
+{"dtype": "torch.float32", "device": "cpu", "moments": {"normal": [1.0091657638549805, 258.95263671875, 67824.21875, 18517028.0, 4652961792.0, 1110150742016.0, 242521569492992.0, 6.943935620448256e+16, 1.5337445037126451e+19, 4.495952515203221e+21, 1.138138889189966e+24], "fan_in_normal": [1.0091657638549805, 0.5057668089866638, 0.25872886180877686, 0.13796260952949524, 0.06770949810743332, 0.03155237436294556, 0.013462647795677185, 0.007528627756983042, 0.0032478291541337967, 0.0018594819121062756, 0.000919381040148437], "xavier_normal": [1.0091657638549805, 0.5057668089866638, 0.25872886180877686, 0.13796260952949524, 0.06770949810743332, 0.03155237436294556, 0.013462647795677185, 0.007528627756983042, 0.0032478291541337967, 0.0018594819121062756, 0.000919381040148437], "he_normal": [1.0091657638549805, 1.0115337371826172, 1.0349154472351074, 1.103700876235962, 1.0833520889282227, 1.009676218032837, 0.861609697341919, 0.9636646509170532, 0.8314445614814758, 0.9520549774169922, 0.9414464235305786]}, "fan_xavier_max_weight_difference": 0.0, "fan_xavier_max_moment_difference": 0.0}
+{"dtype": "torch.float64", "device": "cpu", "moments": {"normal": [1.0073802758917858, 257.3830082880483, 62735.12319725672, 16183258.663258664, 4548345558.084032, 1243638637240.1738, 335486262296196.1, 8.488032285551478e+16, 2.2200102863446393e+19, 5.565442174992779e+21, 1.3547670483057935e+24], "fan_in_normal": [1.0073802758917858, 0.5027011880625943, 0.23931550291922277, 0.12057467299147451, 0.06618713899055778, 0.035346335984063865, 0.018623228642333588, 0.009202743044122023, 0.004701054639443413, 0.0023018129337194935, 0.0010943721063322708], "xavier_normal": [1.0073802758917858, 0.5027011880625943, 0.23931550291922277, 0.12057467299147451, 0.06618713899055778, 0.035346335984063865, 0.018623228642333588, 0.009202743044122023, 0.004701054639443413, 0.0023018129337194935, 0.0010943721063322708], "he_normal": [1.0073802758917858, 1.0054023761251887, 0.9572620116768908, 0.9645973839317956, 1.058994223848924, 1.1310827514900428, 1.1918866331093487, 1.1779511096476178, 1.2034699876975123, 1.1785282220643793, 1.1206370368842435]}, "fan_xavier_max_weight_difference": 0.0, "fan_xavier_max_moment_difference": 0.0}
+Fan-in and Xavier: max absolute weight difference=0 AND max absolute moment difference=0 for both dtypes. The two plotted curves overlap by mathematical equivalence at equal fan sizes, not by a defect.
+Rectangular cases: Xavier/Fan-in second-moment ratio=2*fan_in/(fan_in+fan_out); expected1.6 for512->128 and0.4 for128->512.
+{"fan_in": 512, "fan_out": 128, "dtype": "torch.float32", "expected_moment_ratio": 1.6, "actual_moment_ratio": 1.600000262260437}
+{"fan_in": 128, "fan_out": 512, "dtype": "torch.float32", "expected_moment_ratio": 0.4, "actual_moment_ratio": 0.3999999761581421}
+{"fan_in": 512, "fan_out": 128, "dtype": "torch.float64", "expected_moment_ratio": 1.6, "actual_moment_ratio": 1.5999999999999999}
+{"fan_in": 128, "fan_out": 512, "dtype": "torch.float64", "expected_moment_ratio": 0.4, "actual_moment_ratio": 0.4}
+
+FAILURES / RECOMMENDATIONS
+No failed tests, no detected mandatory implementation fix.
+{'priority': 'P2', 'location': 'source/initialization.py:11-29', 'detail': 'Có thể ghi rõ non-Linear no-op, method validation trước module check và giới hạn Linear kích thước dương trong docstring; không có lỗi thuật toán bắt buộc sửa.'}
+
+UNVERIFIED SCOPE
+CUDA không khả dụng; GPU chưa được thu thập/thực thi, không báo PASS cho GPU.
+Chỉ CPU float32/float64, nn.Linear có kích thước dương. Chưa kiểm tra zero-sized/meta/lazy/quantized/sparse/complex/float16/bfloat16 layers; hợp đồng hiện chưa quy định.
+Invalid hashable methods được kiểm thử (unsupported string, empty string, None, integer). List/dict ngoài annotation str chưa kiểm thử; không coi là lỗi bắt buộc.
+Kiểm thử signal propagation dùng một seed 42 và input Gaussian tổng hợp; không suy ra accuracy, training loss hoặc tốc độ hội tụ trên Horse or Human.
+Không chạy lại notebook hoặc demo giảng viên; notebook có code và output đã lưu nhưng execution_count=None, markdown đầu còn TODO. Pytest là bằng chứng độc lập.
+Không xác minh optimizer momentum/state đã tích lũy trước khi reinitialize hoặc distributed training. Đã xác minh optimizer tạo trước initialization vẫn giữ đúng Parameters và cập nhật được.
+Không triển khai M5. So sánh training loss/hội tụ để M7 sau khi có M5/M6.
+
+DEFINITION OF DONE
+M4 implementation and independent testing COMPLETE within CPU float32/64 scope. Training-loss/convergence comparisons remain M7; no training conclusions claimed.
+Protected source/data/references files unchanged against pre-test hash snapshot: 1352 files.
+No algorithm/config/data edits; no M5 implementation; no commit/push.
+
+RAW PYTEST OUTPUT
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02
+plugins: anyio-4.14.2
+collecting ... collected 128 items
+
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-512-512-normal] PASSED [  0%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-512-512-fan_in_normal] PASSED [  1%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-512-512-xavier_normal] PASSED [  2%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-512-512-he_normal] PASSED [  3%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-512-128-normal] PASSED [  3%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-512-128-fan_in_normal] PASSED [  4%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-512-128-xavier_normal] PASSED [  5%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-512-128-he_normal] PASSED [  6%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-128-512-normal] PASSED [  7%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-128-512-fan_in_normal] PASSED [  7%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-128-512-xavier_normal] PASSED [  8%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-128-512-he_normal] PASSED [  9%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-12288-128-normal] PASSED [ 10%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-12288-128-fan_in_normal] PASSED [ 10%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-12288-128-xavier_normal] PASSED [ 11%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-12288-128-he_normal] PASSED [ 12%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-128-64-normal] PASSED [ 13%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-128-64-fan_in_normal] PASSED [ 14%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-128-64-xavier_normal] PASSED [ 14%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-128-64-he_normal] PASSED [ 15%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-64-1-normal] PASSED [ 16%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-64-1-fan_in_normal] PASSED [ 17%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-64-1-xavier_normal] PASSED [ 17%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-64-1-he_normal] PASSED [ 18%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-512-512-normal] PASSED [ 19%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-512-512-fan_in_normal] PASSED [ 20%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-512-512-xavier_normal] PASSED [ 21%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-512-512-he_normal] PASSED [ 21%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-512-128-normal] PASSED [ 22%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-512-128-fan_in_normal] PASSED [ 23%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-512-128-xavier_normal] PASSED [ 24%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-512-128-he_normal] PASSED [ 25%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-128-512-normal] PASSED [ 25%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-128-512-fan_in_normal] PASSED [ 26%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-128-512-xavier_normal] PASSED [ 27%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-128-512-he_normal] PASSED [ 28%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-12288-128-normal] PASSED [ 28%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-12288-128-fan_in_normal] PASSED [ 29%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-12288-128-xavier_normal] PASSED [ 30%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-12288-128-he_normal] PASSED [ 31%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-128-64-normal] PASSED [ 32%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-128-64-fan_in_normal] PASSED [ 32%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-128-64-xavier_normal] PASSED [ 33%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-128-64-he_normal] PASSED [ 34%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-64-1-normal] PASSED [ 35%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-64-1-fan_in_normal] PASSED [ 35%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-64-1-xavier_normal] PASSED [ 36%]
+source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-64-1-he_normal] PASSED [ 37%]
+source/tests/test_initialization.py::TestDistribution::test_scaling_for_same_random_draws[float32-cpu-512-128] PASSED [ 38%]
+source/tests/test_initialization.py::TestDistribution::test_scaling_for_same_random_draws[float32-cpu-128-512] PASSED [ 39%]
+source/tests/test_initialization.py::TestDistribution::test_scaling_for_same_random_draws[float32-cpu-64-1] PASSED [ 39%]
+source/tests/test_initialization.py::TestDistribution::test_scaling_for_same_random_draws[float64-cpu-512-128] PASSED [ 40%]
+source/tests/test_initialization.py::TestDistribution::test_scaling_for_same_random_draws[float64-cpu-128-512] PASSED [ 41%]
+source/tests/test_initialization.py::TestDistribution::test_scaling_for_same_random_draws[float64-cpu-64-1] PASSED [ 42%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float32-cpu-True-normal] PASSED [ 42%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float32-cpu-True-fan_in_normal] PASSED [ 43%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float32-cpu-True-xavier_normal] PASSED [ 44%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float32-cpu-True-he_normal] PASSED [ 45%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float32-cpu-False-normal] PASSED [ 46%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float32-cpu-False-fan_in_normal] PASSED [ 46%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float32-cpu-False-xavier_normal] PASSED [ 47%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float32-cpu-False-he_normal] PASSED [ 48%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float64-cpu-True-normal] PASSED [ 49%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float64-cpu-True-fan_in_normal] PASSED [ 50%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float64-cpu-True-xavier_normal] PASSED [ 50%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float64-cpu-True-he_normal] PASSED [ 51%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float64-cpu-False-normal] PASSED [ 52%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float64-cpu-False-fan_in_normal] PASSED [ 53%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float64-cpu-False-xavier_normal] PASSED [ 53%]
+source/tests/test_initialization.py::TestBias::test_zero_bias_identity_or_no_bias[float64-cpu-False-he_normal] PASSED [ 54%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float32-cpu-True-normal] PASSED [ 55%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float32-cpu-True-fan_in_normal] PASSED [ 56%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float32-cpu-True-xavier_normal] PASSED [ 57%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float32-cpu-True-he_normal] PASSED [ 57%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float32-cpu-False-normal] PASSED [ 58%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float32-cpu-False-fan_in_normal] PASSED [ 59%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float32-cpu-False-xavier_normal] PASSED [ 60%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float32-cpu-False-he_normal] PASSED [ 60%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float64-cpu-True-normal] PASSED [ 61%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float64-cpu-True-fan_in_normal] PASSED [ 62%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float64-cpu-True-xavier_normal] PASSED [ 63%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float64-cpu-True-he_normal] PASSED [ 64%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float64-cpu-False-normal] PASSED [ 64%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float64-cpu-False-fan_in_normal] PASSED [ 65%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float64-cpu-False-xavier_normal] PASSED [ 66%]
+source/tests/test_initialization.py::TestPreservation::test_in_place_parameter_storage_metadata_and_graph[float64-cpu-False-he_normal] PASSED [ 67%]
+source/tests/test_initialization.py::TestReproducibility::test_seed_repeat_change_and_sequential_layers[float32-cpu-normal] PASSED [ 67%]
+source/tests/test_initialization.py::TestReproducibility::test_seed_repeat_change_and_sequential_layers[float32-cpu-fan_in_normal] PASSED [ 68%]
+source/tests/test_initialization.py::TestReproducibility::test_seed_repeat_change_and_sequential_layers[float32-cpu-xavier_normal] PASSED [ 69%]
+source/tests/test_initialization.py::TestReproducibility::test_seed_repeat_change_and_sequential_layers[float32-cpu-he_normal] PASSED [ 70%]
+source/tests/test_initialization.py::TestReproducibility::test_seed_repeat_change_and_sequential_layers[float64-cpu-normal] PASSED [ 71%]
+source/tests/test_initialization.py::TestReproducibility::test_seed_repeat_change_and_sequential_layers[float64-cpu-fan_in_normal] PASSED [ 71%]
+source/tests/test_initialization.py::TestReproducibility::test_seed_repeat_change_and_sequential_layers[float64-cpu-xavier_normal] PASSED [ 72%]
+source/tests/test_initialization.py::TestReproducibility::test_seed_repeat_change_and_sequential_layers[float64-cpu-he_normal] PASSED [ 73%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[True-unsupported] PASSED [ 74%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[True-] PASSED [ 75%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[True-He_Normal] PASSED [ 75%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[True-None] PASSED [ 76%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[True-42] PASSED [ 77%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[False-unsupported] PASSED [ 78%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[False-] PASSED [ 78%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[False-He_Normal] PASSED [ 79%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[False-None] PASSED [ 80%]
+source/tests/test_initialization.py::TestErrors::test_invalid_method_raises_before_mutation[False-42] PASSED [ 81%]
+source/tests/test_initialization.py::TestErrors::test_non_linear_noop_and_no_implicit_recursion[float32-cpu-normal] PASSED [ 82%]
+source/tests/test_initialization.py::TestErrors::test_non_linear_noop_and_no_implicit_recursion[float32-cpu-fan_in_normal] PASSED [ 82%]
+source/tests/test_initialization.py::TestErrors::test_non_linear_noop_and_no_implicit_recursion[float32-cpu-xavier_normal] PASSED [ 83%]
+source/tests/test_initialization.py::TestErrors::test_non_linear_noop_and_no_implicit_recursion[float32-cpu-he_normal] PASSED [ 84%]
+source/tests/test_initialization.py::TestErrors::test_non_linear_noop_and_no_implicit_recursion[float64-cpu-normal] PASSED [ 85%]
+source/tests/test_initialization.py::TestErrors::test_non_linear_noop_and_no_implicit_recursion[float64-cpu-fan_in_normal] PASSED [ 85%]
+source/tests/test_initialization.py::TestErrors::test_non_linear_noop_and_no_implicit_recursion[float64-cpu-xavier_normal] PASSED [ 86%]
+source/tests/test_initialization.py::TestErrors::test_non_linear_noop_and_no_implicit_recursion[float64-cpu-he_normal] PASSED [ 87%]
+source/tests/test_initialization.py::TestErrors::test_default_is_he_normal[float32-cpu] PASSED [ 88%]
+source/tests/test_initialization.py::TestErrors::test_default_is_he_normal[float64-cpu] PASSED [ 89%]
+source/tests/test_initialization.py::TestSignalPropagation::test_ten_layers_same_input_seed_and_sampling[float32-cpu] PASSED [ 89%]
+source/tests/test_initialization.py::TestSignalPropagation::test_ten_layers_same_input_seed_and_sampling[float64-cpu] PASSED [ 90%]
+source/tests/test_initialization.py::TestSignalPropagation::test_rectangular_fan_in_and_xavier_differ[float32-cpu-512-128] PASSED [ 91%]
+source/tests/test_initialization.py::TestSignalPropagation::test_rectangular_fan_in_and_xavier_differ[float32-cpu-128-512] PASSED [ 92%]
+source/tests/test_initialization.py::TestSignalPropagation::test_rectangular_fan_in_and_xavier_differ[float64-cpu-512-128] PASSED [ 92%]
+source/tests/test_initialization.py::TestSignalPropagation::test_rectangular_fan_in_and_xavier_differ[float64-cpu-128-512] PASSED [ 93%]
+source/tests/test_initialization.py::TestIntegration::test_apply_custom_relu_backward_and_existing_optimizer[float32-cpu-normal] PASSED [ 94%]
+source/tests/test_initialization.py::TestIntegration::test_apply_custom_relu_backward_and_existing_optimizer[float32-cpu-fan_in_normal] PASSED [ 95%]
+source/tests/test_initialization.py::TestIntegration::test_apply_custom_relu_backward_and_existing_optimizer[float32-cpu-xavier_normal] PASSED [ 96%]
+source/tests/test_initialization.py::TestIntegration::test_apply_custom_relu_backward_and_existing_optimizer[float32-cpu-he_normal] PASSED [ 96%]
+source/tests/test_initialization.py::TestIntegration::test_apply_custom_relu_backward_and_existing_optimizer[float64-cpu-normal] PASSED [ 97%]
+source/tests/test_initialization.py::TestIntegration::test_apply_custom_relu_backward_and_existing_optimizer[float64-cpu-fan_in_normal] PASSED [ 98%]
+source/tests/test_initialization.py::TestIntegration::test_apply_custom_relu_backward_and_existing_optimizer[float64-cpu-xavier_normal] PASSED [ 99%]
+source/tests/test_initialization.py::TestIntegration::test_apply_custom_relu_backward_and_existing_optimizer[float64-cpu-he_normal] PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /home/kjwyy/miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+-------------------- generated xml file: /tmp/m4-pytest.xml --------------------
+============================= slowest 10 durations =============================
+0.58s call     source/tests/test_initialization.py::TestDistribution::test_scaling_for_same_random_draws[float32-cpu-512-128]
+0.53s call     source/tests/test_initialization.py::TestIntegration::test_apply_custom_relu_backward_and_existing_optimizer[float32-cpu-normal]
+0.43s call     source/tests/test_initialization.py::TestSignalPropagation::test_ten_layers_same_input_seed_and_sampling[float64-cpu]
+0.19s call     source/tests/test_initialization.py::TestSignalPropagation::test_ten_layers_same_input_seed_and_sampling[float32-cpu]
+0.04s call     source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-12288-128-normal]
+0.04s call     source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-12288-128-he_normal]
+0.04s call     source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-12288-128-xavier_normal]
+0.04s call     source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float64-cpu-12288-128-fan_in_normal]
+0.03s call     source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-12288-128-normal]
+0.03s call     source/tests/test_initialization.py::TestDistribution::test_mean_std_and_weight_orientation[float32-cpu-12288-128-he_normal]
+======================== 128 passed, 1 warning in 3.68s ========================
+
