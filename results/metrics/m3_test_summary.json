@@ -1,0 +1,740 @@
+{
+  "date": "2026-11-24T15:15:13.911430+07:00",
+  "command": ".venv/bin/python -m pytest source/tests/test_activations.py -v --tb=short --durations=10 --junitxml=/tmp/m3-pytest.xml",
+  "versions": {
+    "python": "3.11.15",
+    "pytorch": "2.13.0+cu130",
+    "pytest": "9.2.0"
+  },
+  "devices_tested": [
+    "cpu"
+  ],
+  "dtypes_tested": [
+    "float32",
+    "float64"
+  ],
+  "cuda_available": false,
+  "collected": 100,
+  "counts": {
+    "PASS": 100,
+    "FAIL": 0,
+    "SKIP": 0,
+    "ERROR": 0
+  },
+  "groups": {
+    "ReLUForward": {
+      "PASS": 10,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 10,
+      "duration_seconds": 0.294
+    },
+    "ReLUDerivative": {
+      "PASS": 10,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 10,
+      "duration_seconds": 0.008
+    },
+    "SigmoidForward": {
+      "PASS": 12,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 12,
+      "duration_seconds": 0.012000000000000004
+    },
+    "SigmoidDerivative": {
+      "PASS": 4,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 4,
+      "duration_seconds": 0.003
+    },
+    "CustomAutograd": {
+      "PASS": 26,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 26,
+      "duration_seconds": 0.027000000000000017
+    },
+    "CustomModule": {
+      "PASS": 4,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 4,
+      "duration_seconds": 0.34800000000000003
+    },
+    "ErrorHandling": {
+      "PASS": 34,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 34,
+      "duration_seconds": 0.006
+    }
+  },
+  "duration_seconds": 1.59,
+  "tests": [
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float32-cpu-scalar]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.287
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float32-cpu-vector]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float32-cpu-matrix]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float32-cpu-batch]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float64-cpu-scalar]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float64-cpu-vector]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float64-cpu-matrix]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float64-cpu-batch]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_negative_zero_positive_exact[float32-cpu]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_negative_zero_positive_exact[float64-cpu]",
+      "group": "ReLUForward",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_reference_gradient_and_contract[float32-cpu-scalar]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_gradient_and_contract[float32-cpu-vector]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_gradient_and_contract[float32-cpu-matrix]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_gradient_and_contract[float32-cpu-batch]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_gradient_and_contract[float64-cpu-scalar]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_gradient_and_contract[float64-cpu-vector]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_gradient_and_contract[float64-cpu-matrix]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_gradient_and_contract[float64-cpu-batch]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_zero_convention_and_sign[float32-cpu]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_zero_convention_and_sign[float64-cpu]",
+      "group": "ReLUDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float32-cpu-scalar]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float32-cpu-vector]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float32-cpu-matrix]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float32-cpu-batch]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float64-cpu-scalar]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float64-cpu-vector]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float64-cpu-matrix]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_shape_dtype_device_and_nonmutation[float64-cpu-batch]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_zero_monotonicity_symmetry_and_extremes[float32-cpu]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_zero_monotonicity_symmetry_and_extremes[float64-cpu]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_direct_forward_autograd_stable_at_extremes[float32-cpu]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_direct_forward_autograd_stable_at_extremes[float64-cpu]",
+      "group": "SigmoidForward",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_bounds_extremes_and_preactivation_contract[float32-cpu]",
+      "group": "SigmoidDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_reference_bounds_extremes_and_preactivation_contract[float64-cpu]",
+      "group": "SigmoidDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_independent_central_difference[float32-cpu]",
+      "group": "SigmoidDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_independent_central_difference[float64-cpu]",
+      "group": "SigmoidDerivative",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float32-cpu-scalar-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float32-cpu-scalar-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float32-cpu-vector-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float32-cpu-vector-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float32-cpu-matrix-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float32-cpu-matrix-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float32-cpu-batch-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float32-cpu-batch-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float64-cpu-scalar-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float64-cpu-scalar-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float64-cpu-vector-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float64-cpu-vector-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float64-cpu-matrix-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float64-cpu-matrix-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float64-cpu-batch-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_forward_backward_with_nonunit_upstream[float64-cpu-batch-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_gradcheck_float64_away_from_relu_kink[cpu-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_gradcheck_float64_away_from_relu_kink[cpu-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.002
+    },
+    {
+      "name": "test_backward_calls_public_derivative_and_uses_its_result[float32-cpu-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_backward_calls_public_derivative_and_uses_its_result[float32-cpu-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_backward_calls_public_derivative_and_uses_its_result[float64-cpu-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_backward_calls_public_derivative_and_uses_its_result[float64-cpu-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_extreme_custom_gradients_finite[float32-cpu-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_extreme_custom_gradients_finite[float32-cpu-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_extreme_custom_gradients_finite[float64-cpu-relu]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_extreme_custom_gradients_finite[float64-cpu-sigmoid]",
+      "group": "CustomAutograd",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_sequential_linear_backprop_and_optimizer_update[float32-cpu-relu]",
+      "group": "CustomModule",
+      "status": "PASS",
+      "duration_seconds": 0.341
+    },
+    {
+      "name": "test_sequential_linear_backprop_and_optimizer_update[float32-cpu-sigmoid]",
+      "group": "CustomModule",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_sequential_linear_backprop_and_optimizer_update[float64-cpu-relu]",
+      "group": "CustomModule",
+      "status": "PASS",
+      "duration_seconds": 0.002
+    },
+    {
+      "name": "test_sequential_linear_backprop_and_optimizer_update[float64-cpu-sigmoid]",
+      "group": "CustomModule",
+      "status": "PASS",
+      "duration_seconds": 0.002
+    },
+    {
+      "name": "test_unsupported_name_rejected[forward-tanh]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_unsupported_name_rejected[forward-ReLU]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[forward-]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[forward-None]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[derivative-tanh]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[derivative-ReLU]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[derivative-]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[derivative-None]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[module-tanh]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[module-ReLU]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[module-]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[module-None]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[function-tanh]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[function-ReLU]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[function-]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_unsupported_name_rejected[function-None]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[forward-None-relu]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_nontensor_input_rejected[forward-None-sigmoid]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[forward-value1-relu]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[forward-value1-sigmoid]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[forward-invalid-relu]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[forward-invalid-sigmoid]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[derivative-None-relu]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[derivative-None-sigmoid]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[derivative-value1-relu]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[derivative-value1-sigmoid]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_nontensor_input_rejected[derivative-invalid-relu]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[derivative-invalid-sigmoid]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[module-None-relu]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_nontensor_input_rejected[module-None-sigmoid]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_nontensor_input_rejected[module-value1-relu]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_nontensor_input_rejected[module-value1-sigmoid]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[module-invalid-relu]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nontensor_input_rejected[module-invalid-sigmoid]",
+      "group": "ErrorHandling",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    }
+  ],
+  "gradient_errors": [
+    {
+      "test": "test_independent_central_difference[float32-cpu]",
+      "max_abs_error": 4.109392648388166e-08,
+      "epsilon": 1e-06
+    },
+    {
+      "test": "test_independent_central_difference[float64-cpu]",
+      "max_abs_error": 3.494449174468173e-11,
+      "epsilon": 1e-06
+    }
+  ],
+  "gradcheck": {
+    "relu": "PASS (float64, nonzero inputs)",
+    "sigmoid": "PASS (float64)"
+  },
+  "failed_tests": [],
+  "findings": [
+    {
+      "priority": "P2",
+      "kind": "contract_documentation",
+      "location": "source/activations.py:5–17,52–58",
+      "detail": "Signature nhận Tensor nhưng chưa nêu rõ dtype floating-point được hỗ trợ, input hữu hạn và chính sách lỗi cho dtype/NaN/Inf. Các input non-Tensor đã test bị TypeError ngầm.",
+      "suggestion": "Khi tự review, ghi rõ float32/float64 và finite-input contract; bổ sung validation có chủ đích nếu muốn mở rộng. Không bắt buộc sửa để đạt bộ test M3 hiện tại."
+    },
+    {
+      "priority": "P2",
+      "kind": "notebook_artifact",
+      "location": "source/experiments/02_activation.ipynb",
+      "detail": "File notebook trong workspace vẫn TODO, chưa lưu cell trực quan hóa/gradcheck mà người dùng mô tả.",
+      "suggestion": "Lưu đúng notebook đã làm vào workspace để tái lập minh chứng; không thay thế hoặc xóa hình hiện có."
+    }
+  ],
+  "unverified": [
+    "CUDA không khả dụng: chỉ CPU được thu thập/thực thi. GPU chưa kiểm chứng, không báo PASS cho GPU. Fixture sẽ thêm GPU khi torch.cuda.is_available() là True.",
+    "Float32/float64 với input hữu hạn. Chưa kiểm tra float16/bfloat16, integer/complex tensors, sparse tensors, empty tensors hoặc chính sách input NaN/Inf; hợp đồng hiện chưa quy định các trường hợp này.",
+    "Không gradcheck ReLU tại x=0 vì không khả vi; đã kiểm tra quy ước derivative tại 0 bằng 0 bằng assertion trực tiếp và PyTorch reference.",
+    "Gradient bậc một đã kiểm chứng; chưa thực hiện gradgradcheck, torch.compile, torch.func/vmap hoặc huấn luyện mô hình đồ án.",
+    "Notebook source/experiments/02_activation.ipynb hiện chỉ có markdown TODO và code TODO. Không chạy hoặc sửa notebook; kết quả gradcheck ở đây là pytest độc lập, không dựa vào tuyên bố trước đó.",
+    "Finite-difference đo tại [-5,-2,-0.4,0,0.7,2,5], oracle torch.sigmoid float64, epsilon=1e-6. Tại cực trị dùng kiểm tra hữu hạn và đối chiếu gradient reference; không yêu cầu gradient dương khác 0 sau floating-point saturation.",
+    "Không triển khai/kiểm thử M4 hoặc sửa các module khác."
+  ],
+  "definition_of_done": {
+    "technical_achieved": true,
+    "scope": "Custom ReLU/Sigmoid, derivatives, first-order autograd and small-network integration on CPU float32/float64",
+    "notebook_evidence_complete": false
+  },
+  "integrity": {
+    "protected_files": 1352,
+    "unchanged": true
+  },
+  "warnings": [
+    "1 PytestRemovedIn10Warning của plugin anyio cài sẵn; không có lỗi test."
+  ],
+  "execution_note": "Summary describes the final run. Initial verification also passed 100 tests in 3.34s; final rerun after resolving explicit CUDA device-index fixture portability took 1.59s. Counts not added across runs."
+}

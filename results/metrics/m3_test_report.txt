@@ -1,0 +1,188 @@
+M3 — CUSTOM ACTIVATION & GRADIENT VERIFICATION
+Date: 2026-11-24T15:15:13.911430+07:00
+Command: .venv/bin/python -m pytest source/tests/test_activations.py -v --tb=short --durations=10 --junitxml=/tmp/m3-pytest.xml
+Python 3.11.15 | PyTorch 2.13.0+cu130 | CPU float32/float64 | CUDA available=False
+Collected: 100 | PASS=100 FAIL=0 SKIP=0 ERROR=0
+Final pytest execution time: 1.59s. Counts extracted from actual pytest collection/JUnit reports, not requested checklist.
+Summary describes the final run. Initial verification also passed 100 tests in 3.34s; final rerun after resolving explicit CUDA device-index fixture portability took 1.59s. Counts not added across runs.
+
+GROUP RESULTS
+ReLUForward: total=10; PASS=10 FAIL=0 SKIP=0 ERROR=0; summed testcase time=0.294s
+ReLUDerivative: total=10; PASS=10 FAIL=0 SKIP=0 ERROR=0; summed testcase time=0.008s
+SigmoidForward: total=12; PASS=12 FAIL=0 SKIP=0 ERROR=0; summed testcase time=0.012s
+SigmoidDerivative: total=4; PASS=4 FAIL=0 SKIP=0 ERROR=0; summed testcase time=0.003s
+CustomAutograd: total=26; PASS=26 FAIL=0 SKIP=0 ERROR=0; summed testcase time=0.027s
+CustomModule: total=4; PASS=4 FAIL=0 SKIP=0 ERROR=0; summed testcase time=0.348s
+ErrorHandling: total=34; PASS=34 FAIL=0 SKIP=0 ERROR=0; summed testcase time=0.006s
+
+IMPLEMENTATION CONTRACT OBSERVED
+activation_forward(x: torch.Tensor, name: str) -> torch.Tensor: exact lowercase relu/sigmoid. ReLU torch.where(x>0,x,zeros_like(x)); stable Sigmoid evaluates exp(-x) only for x>=0 and exp(x) only for x<0. No replacement with torch built-in activation.
+activation_derivative(x: torch.Tensor, name: str) -> torch.Tensor: preactivation x, ReLU mask x>0 cast to input dtype; Sigmoid computes s=activation_forward(x,"sigmoid"), returns s*(1-s).
+CustomActivationFunction.forward(ctx,x,name): saves x and name, delegates forward. backward(ctx,grad_output): calls public activation_derivative(x,name), returns grad_output*derivative, None.
+CustomActivation(name: str): nn.Module validates supported name at construction and calls CustomActivationFunction.apply in forward(x).
+
+COVERAGE
+A: ReLU negative/zero/positive, scalar/vector/matrix/batch, shape/dtype/device preserved and input unchanged versus torch.relu.
+B: ReLU analytical derivative matches PyTorch autograd, including derivative(0)=0; scalar to batch shapes, float32/64.
+C: Sigmoid value(0)=0.5, monotonicity, symmetry, range and finite values; [-1000,-100,100,1000] extremes. Direct activation_forward autograd graph also tested for finite first gradients (not only custom Function).
+D: Sigmoid derivative(0)=0.25, nonnegative <=0.25, preactivation contract, finite extremes and reference autograd agreement. Independent central-difference numerical oracle avoids circular expected results.
+E: custom forward/backward, multidimensional tensors, signed/nonunit upstream, float64 gradcheck away from ReLU zero. Mocked derivative returns sentinel .375; assertion proves public derivative is called and returned values actually control gradient. Extreme custom gradients finite.
+F: nn.Sequential with two nn.Linear layers and CustomActivation, fixed parameters and fixed inputs. Outputs, input grads and every weight/bias grad compared against built-in reference network. All parameters have finite/nonzero gradients; one SGD step updates weights and biases correctly. This is a unit fixture, not implementation of MLP/training modules.
+G: unsupported names rejected by forward/derivative/Function/module constructor; None/list/string input rejected as non-Tensor. No blanket exception masking, no skip/xfail.
+
+NUMERICAL GRADIENT ERRORS
+test_independent_central_difference[float32-cpu]: max absolute analytical-numerical error=4.10939264839e-08; epsilon=1e-06; reference finite difference evaluated in float64.
+test_independent_central_difference[float64-cpu]: max absolute analytical-numerical error=3.49444917447e-11; epsilon=1e-06; reference finite difference evaluated in float64.
+Thresholds: float32 analytical error <1e-7; float64 analytical error <1e-9. Gradcheck eps=1e-6, atol=1e-5, rtol=1e-3 for both activations.
+
+FAILED TESTS / ERRORS / FIXES
+None. No mandatory P0/P1 implementation defect found in the tested contract; no algorithm fix required or applied.
+
+P2 NOTES (not failed tests)
+P2 | source/activations.py:5–17,52–58
+  Signature nhận Tensor nhưng chưa nêu rõ dtype floating-point được hỗ trợ, input hữu hạn và chính sách lỗi cho dtype/NaN/Inf. Các input non-Tensor đã test bị TypeError ngầm.
+  Suggestion: Khi tự review, ghi rõ float32/float64 và finite-input contract; bổ sung validation có chủ đích nếu muốn mở rộng. Không bắt buộc sửa để đạt bộ test M3 hiện tại.
+P2 | source/experiments/02_activation.ipynb
+  File notebook trong workspace vẫn TODO, chưa lưu cell trực quan hóa/gradcheck mà người dùng mô tả.
+  Suggestion: Lưu đúng notebook đã làm vào workspace để tái lập minh chứng; không thay thế hoặc xóa hình hiện có.
+
+LIMITATIONS / UNVERIFIED
+- CUDA không khả dụng: chỉ CPU được thu thập/thực thi. GPU chưa kiểm chứng, không báo PASS cho GPU. Fixture sẽ thêm GPU khi torch.cuda.is_available() là True.
+- Float32/float64 với input hữu hạn. Chưa kiểm tra float16/bfloat16, integer/complex tensors, sparse tensors, empty tensors hoặc chính sách input NaN/Inf; hợp đồng hiện chưa quy định các trường hợp này.
+- Không gradcheck ReLU tại x=0 vì không khả vi; đã kiểm tra quy ước derivative tại 0 bằng 0 bằng assertion trực tiếp và PyTorch reference.
+- Gradient bậc một đã kiểm chứng; chưa thực hiện gradgradcheck, torch.compile, torch.func/vmap hoặc huấn luyện mô hình đồ án.
+- Notebook source/experiments/02_activation.ipynb hiện chỉ có markdown TODO và code TODO. Không chạy hoặc sửa notebook; kết quả gradcheck ở đây là pytest độc lập, không dựa vào tuyên bố trước đó.
+- Finite-difference đo tại [-5,-2,-0.4,0,0.7,2,5], oracle torch.sigmoid float64, epsilon=1e-6. Tại cực trị dùng kiểm tra hữu hạn và đối chiếu gradient reference; không yêu cầu gradient dương khác 0 sau floating-point saturation.
+- Không triển khai/kiểm thử M4 hoặc sửa các module khác.
+
+DEFINITION OF DONE
+M3 technical DoD ACHIEVED: two custom activations/derivatives, verified custom backward and integration, CPU float32/64. Saved notebook evidence remains incomplete; no comparative training claimed.
+Integrity: 1352 protected source/data/reference files unchanged by SHA-256. No environment/config/dataset edits. No commit/push.
+Changes: source/tests/test_activations.py, PLAN.md (M3), results/metrics/m3_test_report.txt, results/metrics/m3_test_summary.json.
+
+RAW PYTEST OUTPUT
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02
+plugins: anyio-4.14.2
+collecting ... collected 100 items
+
+source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-scalar] PASSED [  1%]
+source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-vector] PASSED [  2%]
+source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-matrix] PASSED [  3%]
+source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-batch] PASSED [  4%]
+source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float64-cpu-scalar] PASSED [  5%]
+source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float64-cpu-vector] PASSED [  6%]
+source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float64-cpu-matrix] PASSED [  7%]
+source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float64-cpu-batch] PASSED [  8%]
+source/tests/test_activations.py::TestReLUForward::test_negative_zero_positive_exact[float32-cpu] PASSED [  9%]
+source/tests/test_activations.py::TestReLUForward::test_negative_zero_positive_exact[float64-cpu] PASSED [ 10%]
+source/tests/test_activations.py::TestReLUDerivative::test_reference_gradient_and_contract[float32-cpu-scalar] PASSED [ 11%]
+source/tests/test_activations.py::TestReLUDerivative::test_reference_gradient_and_contract[float32-cpu-vector] PASSED [ 12%]
+source/tests/test_activations.py::TestReLUDerivative::test_reference_gradient_and_contract[float32-cpu-matrix] PASSED [ 13%]
+source/tests/test_activations.py::TestReLUDerivative::test_reference_gradient_and_contract[float32-cpu-batch] PASSED [ 14%]
+source/tests/test_activations.py::TestReLUDerivative::test_reference_gradient_and_contract[float64-cpu-scalar] PASSED [ 15%]
+source/tests/test_activations.py::TestReLUDerivative::test_reference_gradient_and_contract[float64-cpu-vector] PASSED [ 16%]
+source/tests/test_activations.py::TestReLUDerivative::test_reference_gradient_and_contract[float64-cpu-matrix] PASSED [ 17%]
+source/tests/test_activations.py::TestReLUDerivative::test_reference_gradient_and_contract[float64-cpu-batch] PASSED [ 18%]
+source/tests/test_activations.py::TestReLUDerivative::test_zero_convention_and_sign[float32-cpu] PASSED [ 19%]
+source/tests/test_activations.py::TestReLUDerivative::test_zero_convention_and_sign[float64-cpu] PASSED [ 20%]
+source/tests/test_activations.py::TestSigmoidForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-scalar] PASSED [ 21%]
+source/tests/test_activations.py::TestSigmoidForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-vector] PASSED [ 22%]
+source/tests/test_activations.py::TestSigmoidForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-matrix] PASSED [ 23%]
+source/tests/test_activations.py::TestSigmoidForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-batch] PASSED [ 24%]
+source/tests/test_activations.py::TestSigmoidForward::test_reference_shape_dtype_device_and_nonmutation[float64-cpu-scalar] PASSED [ 25%]
+source/tests/test_activations.py::TestSigmoidForward::test_reference_shape_dtype_device_and_nonmutation[float64-cpu-vector] PASSED [ 26%]
+source/tests/test_activations.py::TestSigmoidForward::test_reference_shape_dtype_device_and_nonmutation[float64-cpu-matrix] PASSED [ 27%]
+source/tests/test_activations.py::TestSigmoidForward::test_reference_shape_dtype_device_and_nonmutation[float64-cpu-batch] PASSED [ 28%]
+source/tests/test_activations.py::TestSigmoidForward::test_zero_monotonicity_symmetry_and_extremes[float32-cpu] PASSED [ 29%]
+source/tests/test_activations.py::TestSigmoidForward::test_zero_monotonicity_symmetry_and_extremes[float64-cpu] PASSED [ 30%]
+source/tests/test_activations.py::TestSigmoidForward::test_direct_forward_autograd_stable_at_extremes[float32-cpu] PASSED [ 31%]
+source/tests/test_activations.py::TestSigmoidForward::test_direct_forward_autograd_stable_at_extremes[float64-cpu] PASSED [ 32%]
+source/tests/test_activations.py::TestSigmoidDerivative::test_reference_bounds_extremes_and_preactivation_contract[float32-cpu] PASSED [ 33%]
+source/tests/test_activations.py::TestSigmoidDerivative::test_reference_bounds_extremes_and_preactivation_contract[float64-cpu] PASSED [ 34%]
+source/tests/test_activations.py::TestSigmoidDerivative::test_independent_central_difference[float32-cpu] PASSED [ 35%]
+source/tests/test_activations.py::TestSigmoidDerivative::test_independent_central_difference[float64-cpu] PASSED [ 36%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float32-cpu-scalar-relu] PASSED [ 37%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float32-cpu-scalar-sigmoid] PASSED [ 38%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float32-cpu-vector-relu] PASSED [ 39%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float32-cpu-vector-sigmoid] PASSED [ 40%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float32-cpu-matrix-relu] PASSED [ 41%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float32-cpu-matrix-sigmoid] PASSED [ 42%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float32-cpu-batch-relu] PASSED [ 43%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float32-cpu-batch-sigmoid] PASSED [ 44%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float64-cpu-scalar-relu] PASSED [ 45%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float64-cpu-scalar-sigmoid] PASSED [ 46%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float64-cpu-vector-relu] PASSED [ 47%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float64-cpu-vector-sigmoid] PASSED [ 48%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float64-cpu-matrix-relu] PASSED [ 49%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float64-cpu-matrix-sigmoid] PASSED [ 50%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float64-cpu-batch-relu] PASSED [ 51%]
+source/tests/test_activations.py::TestCustomAutograd::test_forward_backward_with_nonunit_upstream[float64-cpu-batch-sigmoid] PASSED [ 52%]
+source/tests/test_activations.py::TestCustomAutograd::test_gradcheck_float64_away_from_relu_kink[cpu-relu] PASSED [ 53%]
+source/tests/test_activations.py::TestCustomAutograd::test_gradcheck_float64_away_from_relu_kink[cpu-sigmoid] PASSED [ 54%]
+source/tests/test_activations.py::TestCustomAutograd::test_backward_calls_public_derivative_and_uses_its_result[float32-cpu-relu] PASSED [ 55%]
+source/tests/test_activations.py::TestCustomAutograd::test_backward_calls_public_derivative_and_uses_its_result[float32-cpu-sigmoid] PASSED [ 56%]
+source/tests/test_activations.py::TestCustomAutograd::test_backward_calls_public_derivative_and_uses_its_result[float64-cpu-relu] PASSED [ 57%]
+source/tests/test_activations.py::TestCustomAutograd::test_backward_calls_public_derivative_and_uses_its_result[float64-cpu-sigmoid] PASSED [ 58%]
+source/tests/test_activations.py::TestCustomAutograd::test_extreme_custom_gradients_finite[float32-cpu-relu] PASSED [ 59%]
+source/tests/test_activations.py::TestCustomAutograd::test_extreme_custom_gradients_finite[float32-cpu-sigmoid] PASSED [ 60%]
+source/tests/test_activations.py::TestCustomAutograd::test_extreme_custom_gradients_finite[float64-cpu-relu] PASSED [ 61%]
+source/tests/test_activations.py::TestCustomAutograd::test_extreme_custom_gradients_finite[float64-cpu-sigmoid] PASSED [ 62%]
+source/tests/test_activations.py::TestCustomModule::test_sequential_linear_backprop_and_optimizer_update[float32-cpu-relu] PASSED [ 63%]
+source/tests/test_activations.py::TestCustomModule::test_sequential_linear_backprop_and_optimizer_update[float32-cpu-sigmoid] PASSED [ 64%]
+source/tests/test_activations.py::TestCustomModule::test_sequential_linear_backprop_and_optimizer_update[float64-cpu-relu] PASSED [ 65%]
+source/tests/test_activations.py::TestCustomModule::test_sequential_linear_backprop_and_optimizer_update[float64-cpu-sigmoid] PASSED [ 66%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[forward-tanh] PASSED [ 67%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[forward-ReLU] PASSED [ 68%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[forward-] PASSED [ 69%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[forward-None] PASSED [ 70%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[derivative-tanh] PASSED [ 71%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[derivative-ReLU] PASSED [ 72%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[derivative-] PASSED [ 73%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[derivative-None] PASSED [ 74%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[module-tanh] PASSED [ 75%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[module-ReLU] PASSED [ 76%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[module-] PASSED [ 77%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[module-None] PASSED [ 78%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[function-tanh] PASSED [ 79%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[function-ReLU] PASSED [ 80%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[function-] PASSED [ 81%]
+source/tests/test_activations.py::TestErrorHandling::test_unsupported_name_rejected[function-None] PASSED [ 82%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[forward-None-relu] PASSED [ 83%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[forward-None-sigmoid] PASSED [ 84%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[forward-value1-relu] PASSED [ 85%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[forward-value1-sigmoid] PASSED [ 86%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[forward-invalid-relu] PASSED [ 87%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[forward-invalid-sigmoid] PASSED [ 88%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[derivative-None-relu] PASSED [ 89%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[derivative-None-sigmoid] PASSED [ 90%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[derivative-value1-relu] PASSED [ 91%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[derivative-value1-sigmoid] PASSED [ 92%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[derivative-invalid-relu] PASSED [ 93%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[derivative-invalid-sigmoid] PASSED [ 94%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[module-None-relu] PASSED [ 95%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[module-None-sigmoid] PASSED [ 96%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[module-value1-relu] PASSED [ 97%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[module-value1-sigmoid] PASSED [ 98%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[module-invalid-relu] PASSED [ 99%]
+source/tests/test_activations.py::TestErrorHandling::test_nontensor_input_rejected[module-invalid-sigmoid] PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /home/kjwyy/miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+-------------------- generated xml file: /tmp/m3-pytest.xml --------------------
+============================= slowest 10 durations =============================
+0.34s call     source/tests/test_activations.py::TestCustomModule::test_sequential_linear_backprop_and_optimizer_update[float32-cpu-relu]
+0.29s call     source/tests/test_activations.py::TestReLUForward::test_reference_shape_dtype_device_and_nonmutation[float32-cpu-scalar]
+
+(8 durations < 0.005s hidden.  Use -vv to show these durations.)
+======================== 100 passed, 1 warning in 1.59s ========================
+
