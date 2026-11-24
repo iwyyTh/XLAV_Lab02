@@ -1,0 +1,432 @@
+{
+  "date": "2026-11-24T14:35:16.113945+07:00",
+  "command": ".venv/bin/python -m pytest source/tests/test_dataset.py -v --tb=short --durations=10 --junitxml=/tmp/m1-pytest.xml",
+  "versions": {
+    "python": "3.11.15",
+    "pytorch": "2.13.0+cu130",
+    "opencv": "4.14.0"
+  },
+  "collected": 54,
+  "counts": {
+    "PASS": 54,
+    "FAIL": 0,
+    "SKIP": 0,
+    "ERROR": 0
+  },
+  "duration_seconds": 6.71,
+  "groups": {
+    "Preprocessing": {
+      "PASS": 24,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 24,
+      "duration_seconds": 0.03200000000000001
+    },
+    "Dataset": {
+      "PASS": 23,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 23,
+      "duration_seconds": 0.13500000000000006
+    },
+    "DataLoader": {
+      "PASS": 7,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 7,
+      "duration_seconds": 3.9899999999999993
+    }
+  },
+  "failed_tests": [],
+  "tests": [
+    {
+      "name": "test_p01_p05_p10_p12_tensor_contract[size0]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.019
+    },
+    {
+      "name": "test_p01_p05_p10_p12_tensor_contract[size1]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_p06_p07_black_white[0-3]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_p06_p07_black_white[0-4]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_p06_p07_black_white[255-3]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p06_p07_black_white[255-4]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_p08_p09_primary_colors[3]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.005
+    },
+    {
+      "name": "test_p08_p09_primary_colors[4]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_p09_p12_white_alpha_composite_without_mutation",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.002
+    },
+    {
+      "name": "test_p11_invalid_image[None-TypeError]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_p11_invalid_image[not an image-TypeError]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_image[image2-ValueError]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_image[image3-ValueError]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_image[image4-ValueError]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_image[image5-ValueError]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_image[image6-TypeError]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_image[image7-TypeError]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_image[image8-TypeError]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_size[size0]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_size[size1]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_size[size2]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_size[size3]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_size[size4]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_p11_invalid_size[None]",
+      "group": "Preprocessing",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_d01_d08_d17_d21_real_metadata_and_sample[train-845]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.025
+    },
+    {
+      "name": "test_d01_d08_d17_d21_real_metadata_and_sample[val-182]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.011
+    },
+    {
+      "name": "test_d01_d08_d17_d21_real_metadata_and_sample[test-256]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.008
+    },
+    {
+      "name": "test_d09_missing_csv",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.002
+    },
+    {
+      "name": "test_d10_missing_column[image_path]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.008
+    },
+    {
+      "name": "test_d10_missing_column[label]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_d10_missing_column[class_name]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.004
+    },
+    {
+      "name": "test_d11_empty_csv[True]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_d11_empty_csv[False]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_d12_missing_value[image_path]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_d12_missing_value[label]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_d12_missing_value[class_name]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_d13_invalid_label[-1]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.004
+    },
+    {
+      "name": "test_d13_invalid_label[2]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.005
+    },
+    {
+      "name": "test_d13_invalid_label[0.5]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.005
+    },
+    {
+      "name": "test_d13_invalid_label[invalid]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.004
+    },
+    {
+      "name": "test_d14_class_label_mismatch[humans]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_d14_class_label_mismatch[unknown]",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_d15_missing_image",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.003
+    },
+    {
+      "name": "test_d16_unreadable_image",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.004
+    },
+    {
+      "name": "test_d18_custom_transform_receives_unchanged_bgra",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.006
+    },
+    {
+      "name": "test_d19_paths_independent_of_cwd",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.018
+    },
+    {
+      "name": "test_d20_lazy_loading",
+      "group": "Dataset",
+      "status": "PASS",
+      "duration_seconds": 0.004
+    },
+    {
+      "name": "test_l01_l11_all_real_images_once",
+      "group": "DataLoader",
+      "status": "PASS",
+      "duration_seconds": 3.879
+    },
+    {
+      "name": "test_l12_l13_seeded_permutation",
+      "group": "DataLoader",
+      "status": "PASS",
+      "duration_seconds": 0.022
+    },
+    {
+      "name": "test_l14_l15_eval_deterministic[val]",
+      "group": "DataLoader",
+      "status": "PASS",
+      "duration_seconds": 0.017
+    },
+    {
+      "name": "test_l14_l15_eval_deterministic[test]",
+      "group": "DataLoader",
+      "status": "PASS",
+      "duration_seconds": 0.015
+    },
+    {
+      "name": "test_l16_l17_custom_transform_routing",
+      "group": "DataLoader",
+      "status": "PASS",
+      "duration_seconds": 0.014
+    },
+    {
+      "name": "test_l18_eval_does_not_advance_train_generator",
+      "group": "DataLoader",
+      "status": "PASS",
+      "duration_seconds": 0.022
+    },
+    {
+      "name": "test_l12_actual_batch_order_reproducible",
+      "group": "DataLoader",
+      "status": "PASS",
+      "duration_seconds": 0.021
+    }
+  ],
+  "coverage": {
+    "Preprocessing": "P01–P12: exact RGB primary values, alpha 0/128/255 on white, uint8 validation, size, float32/range/finite/contiguous, deterministic, no mutation.",
+    "Dataset": "D01–D21: counts, default/custom transform, targets match metadata, missing/empty/invalid CSV, missing/corrupt files, cwd-independent relative paths, lazy loading spy.",
+    "DataLoader": "L01–L18: one full real-data traversal, exact path coverage and labels; sampler/batch counts/tails; synthetic reproducibility, differing seeds, eval determinism, transform routing and independent train generator."
+  },
+  "dataset": {
+    "total": 1283,
+    "train": 845,
+    "val": 182,
+    "test": 256,
+    "batches": {
+      "train": 27,
+      "val": 6,
+      "test": 8
+    },
+    "last_batch": {
+      "train": 13,
+      "val": 22,
+      "test": 32
+    },
+    "full_traversals": 1
+  },
+  "findings": [
+    {
+      "priority": "P2",
+      "kind": "maintenance",
+      "location": "source/dataset.py:13; imports lines 4 and 8",
+      "detail": "Docstring TODO subclass đã lỗi thời và import Dataset lặp. Không ảnh hưởng các test.",
+      "suggestion": "Cập nhật docstring và gom imports khi tự dọn code; không bắt buộc để đóng M1."
+    },
+    {
+      "priority": "P2",
+      "kind": "optional_extension",
+      "location": "source/dataset.py:19,100–122",
+      "detail": "build_loaders(config) truyền splits_dir nhưng Dataset lấy root từ CONFIG toàn cục. Chưa test custom root độc lập; cấu hình mặc định PASS.",
+      "suggestion": "Nếu muốn hỗ trợ config.root tùy biến, quy định và truyền root nhất quán vào Dataset; thêm test riêng khi mở rộng hợp đồng."
+    },
+    {
+      "priority": "P2",
+      "kind": "notebook_check",
+      "location": "source/experiments/00_data_pipeline.ipynb, code cell 9 (zero-based)",
+      "detail": "Vòng for name,loader lấy batch từ loaders[\"train\"] thay vì loader nên không kiểm tra batch của val/test ở cell đó.",
+      "suggestion": "Đổi thành next(iter(loader)) khi tự cập nhật notebook. Unit test L01–L11 đã kiểm tra đủ ba loader; không sửa notebook trong lượt này."
+    }
+  ],
+  "unverified": [
+    "Không chạy lại notebook hoặc các test ngoài source/tests/test_dataset.py; notebook có đoạn kiểm tra batch luôn đọc loaders[\"train\"] trong vòng lặp (code cell 9, zero-based). Unit test mới đã kiểm tra riêng cả ba loader.",
+    "CPU, num_workers=0, cấu hình mặc định. Chưa kiểm tra CUDA, multiprocessing, Colab/Kaggle hoặc phiên bản OpenCV khác.",
+    "Reproducible shuffle/different seeds/eval repeat/transform routing được kiểm tra trên fixture tổng hợp 6 ảnh. Dataset thật được duyệt trọn một lần; không chạy lại toàn tập để kiểm tra determinism.",
+    "Không kiểm thử thay config.root sang project khác mà không thay CONFIG toàn cục; Dataset hiện luôn dùng CONFIG.root. Đây là khả năng mở rộng chưa có hợp đồng rõ, không tính thành lỗi bắt buộc M1.",
+    "Không yêu cầu reject đường dẫn tuyệt đối/traversal, duplicate CSV rows hoặc negative index; chưa quy định trong hợp đồng lần này. CSV thật dùng đường dẫn tương đối.",
+    "Không kiểm thử M2–M8, near-duplicate hoặc training/model performance. Không thay đổi trạng thái các module này."
+  ],
+  "definition_of_done": {
+    "achieved": true,
+    "scope": "M1 technical requirements P01–P12, D01–D21, L01–L18 on current CPU configuration"
+  },
+  "integrity": {
+    "unchanged": true,
+    "files_checked": 1351
+  },
+  "warning": "1 PytestRemovedIn10Warning từ plugin anyio cài sẵn; không có lỗi test."
+}

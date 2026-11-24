@@ -1,0 +1,137 @@
+M1 — INDEPENDENT UNIT TESTING & VERIFICATION
+Date: 2026-11-24T14:35:16.113945+07:00
+Command: .venv/bin/python -m pytest source/tests/test_dataset.py -v --tb=short --durations=10 --junitxml=/tmp/m1-pytest.xml
+Python 3.11.15 | PyTorch 2.13.0+cu130 | OpenCV 4.14.0
+Collected: 54 | PASS 54 | FAIL 0 | SKIP 0 | ERROR 0
+Pytest execution time: 6.71s (one combined verbose + durations run).
+Counts extracted from pytest collection log and JUnit testcase outcomes; not prompt test-ID counts.
+
+GROUP RESULTS
+Preprocessing: total=24, PASS=24, FAIL=0, SKIP=0, ERROR=0; summed testcase time=0.032s
+  P01–P12: exact RGB primary values, alpha 0/128/255 on white, uint8 validation, size, float32/range/finite/contiguous, deterministic, no mutation.
+Dataset: total=23, PASS=23, FAIL=0, SKIP=0, ERROR=0; summed testcase time=0.135s
+  D01–D21: counts, default/custom transform, targets match metadata, missing/empty/invalid CSV, missing/corrupt files, cwd-independent relative paths, lazy loading spy.
+DataLoader: total=7, PASS=7, FAIL=0, SKIP=0, ERROR=0; summed testcase time=3.990s
+  L01–L18: one full real-data traversal, exact path coverage and labels; sampler/batch counts/tails; synthetic reproducibility, differing seeds, eval determinism, transform routing and independent train generator.
+
+CURRENT CONTRACTS
+build_preprocessing(image_size=(64,64)): closure uint8 NumPy BGR/BGRA HWC -> RGB float32 contiguous CHW [0,1]. (H,W) becomes cv2 dsize (W,H), INTER_LINEAR. Transparency composited on white with uint8 rounding; opaque unchanged; no input mutation.
+HorseHumanDataset(csv_path: Path, transform=None): validates CSV required columns/nonempty/non-null/binary class-label mapping/existing image paths, uses CONFIG.root; default build_preprocessing(CONFIG.image_size). __len__ returns row count. __getitem__(index) lazy IMREAD_UNCHANGED, rejects unreadable image, applies transform, returns tensor + float32 target [1].
+build_loaders(config, train_transform=None, eval_transform=None): keys train/val/test, batch 32, workers 0, drop_last=False, seeded random train sampler, sequential val/test; eval_transform shared for val/test.
+
+REAL DATA INTEGRATION
+One full traversal: 845 + 182 + 256 = 1283 unique paths read exactly once in L11. Every returned label checked against CSV metadata for the actual read path. All tensors checked for shape/dtype/range/finite values. 27/6/8 batches; tails 13/22/32. A few additional real samples read by Dataset/cwd tests; no additional full traversal.
+
+FAILED TESTS / IMPLEMENTATION ERRORS
+None. No mandatory P0/P1 failure detected in the tested contract. No algorithm edits performed.
+
+P2 OBSERVATIONS (not failed tests; not blockers)
+P2 | source/dataset.py:13; imports lines 4 and 8
+  Docstring TODO subclass đã lỗi thời và import Dataset lặp. Không ảnh hưởng các test.
+  Suggestion: Cập nhật docstring và gom imports khi tự dọn code; không bắt buộc để đóng M1.
+P2 | source/dataset.py:19,100–122
+  build_loaders(config) truyền splits_dir nhưng Dataset lấy root từ CONFIG toàn cục. Chưa test custom root độc lập; cấu hình mặc định PASS.
+  Suggestion: Nếu muốn hỗ trợ config.root tùy biến, quy định và truyền root nhất quán vào Dataset; thêm test riêng khi mở rộng hợp đồng.
+P2 | source/experiments/00_data_pipeline.ipynb, code cell 9 (zero-based)
+  Vòng for name,loader lấy batch từ loaders["train"] thay vì loader nên không kiểm tra batch của val/test ở cell đó.
+  Suggestion: Đổi thành next(iter(loader)) khi tự cập nhật notebook. Unit test L01–L11 đã kiểm tra đủ ba loader; không sửa notebook trong lượt này.
+
+UNVERIFIED / LIMITATIONS
+- Không chạy lại notebook hoặc các test ngoài source/tests/test_dataset.py; notebook có đoạn kiểm tra batch luôn đọc loaders["train"] trong vòng lặp (code cell 9, zero-based). Unit test mới đã kiểm tra riêng cả ba loader.
+- CPU, num_workers=0, cấu hình mặc định. Chưa kiểm tra CUDA, multiprocessing, Colab/Kaggle hoặc phiên bản OpenCV khác.
+- Reproducible shuffle/different seeds/eval repeat/transform routing được kiểm tra trên fixture tổng hợp 6 ảnh. Dataset thật được duyệt trọn một lần; không chạy lại toàn tập để kiểm tra determinism.
+- Không kiểm thử thay config.root sang project khác mà không thay CONFIG toàn cục; Dataset hiện luôn dùng CONFIG.root. Đây là khả năng mở rộng chưa có hợp đồng rõ, không tính thành lỗi bắt buộc M1.
+- Không yêu cầu reject đường dẫn tuyệt đối/traversal, duplicate CSV rows hoặc negative index; chưa quy định trong hợp đồng lần này. CSV thật dùng đường dẫn tương đối.
+- Không kiểm thử M2–M8, near-duplicate hoặc training/model performance. Không thay đổi trạng thái các module này.
+
+DEFINITION OF DONE
+M1 technical DoD: ACHIEVED within the tested current CPU contract. No required fix before closing M1. M0 notebook artifact status and M2–M8 completion are separate.
+Integrity: 1351 protected source/data/reference files unchanged by content hash. Environment, source algorithms, augmentation, config and splits not modified.
+Artifacts edited/created: source/tests/test_dataset.py, PLAN.md, results/metrics/m1_test_report.txt, results/metrics/m1_test_summary.json.
+
+RAW PYTEST OUTPUT
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02
+plugins: anyio-4.14.2
+collecting ... collected 54 items
+
+source/tests/test_dataset.py::TestPreprocessing::test_p01_p05_p10_p12_tensor_contract[size0] PASSED [  1%]
+source/tests/test_dataset.py::TestPreprocessing::test_p01_p05_p10_p12_tensor_contract[size1] PASSED [  3%]
+source/tests/test_dataset.py::TestPreprocessing::test_p06_p07_black_white[0-3] PASSED [  5%]
+source/tests/test_dataset.py::TestPreprocessing::test_p06_p07_black_white[0-4] PASSED [  7%]
+source/tests/test_dataset.py::TestPreprocessing::test_p06_p07_black_white[255-3] PASSED [  9%]
+source/tests/test_dataset.py::TestPreprocessing::test_p06_p07_black_white[255-4] PASSED [ 11%]
+source/tests/test_dataset.py::TestPreprocessing::test_p08_p09_primary_colors[3] PASSED [ 12%]
+source/tests/test_dataset.py::TestPreprocessing::test_p08_p09_primary_colors[4] PASSED [ 14%]
+source/tests/test_dataset.py::TestPreprocessing::test_p09_p12_white_alpha_composite_without_mutation PASSED [ 16%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_image[None-TypeError] PASSED [ 18%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_image[not an image-TypeError] PASSED [ 20%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_image[image2-ValueError] PASSED [ 22%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_image[image3-ValueError] PASSED [ 24%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_image[image4-ValueError] PASSED [ 25%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_image[image5-ValueError] PASSED [ 27%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_image[image6-TypeError] PASSED [ 29%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_image[image7-TypeError] PASSED [ 31%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_image[image8-TypeError] PASSED [ 33%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_size[size0] PASSED [ 35%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_size[size1] PASSED [ 37%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_size[size2] PASSED [ 38%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_size[size3] PASSED [ 40%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_size[size4] PASSED [ 42%]
+source/tests/test_dataset.py::TestPreprocessing::test_p11_invalid_size[None] PASSED [ 44%]
+source/tests/test_dataset.py::TestDataset::test_d01_d08_d17_d21_real_metadata_and_sample[train-845] PASSED [ 46%]
+source/tests/test_dataset.py::TestDataset::test_d01_d08_d17_d21_real_metadata_and_sample[val-182] PASSED [ 48%]
+source/tests/test_dataset.py::TestDataset::test_d01_d08_d17_d21_real_metadata_and_sample[test-256] PASSED [ 50%]
+source/tests/test_dataset.py::TestDataset::test_d09_missing_csv PASSED   [ 51%]
+source/tests/test_dataset.py::TestDataset::test_d10_missing_column[image_path] PASSED [ 53%]
+source/tests/test_dataset.py::TestDataset::test_d10_missing_column[label] PASSED [ 55%]
+source/tests/test_dataset.py::TestDataset::test_d10_missing_column[class_name] PASSED [ 57%]
+source/tests/test_dataset.py::TestDataset::test_d11_empty_csv[True] PASSED [ 59%]
+source/tests/test_dataset.py::TestDataset::test_d11_empty_csv[False] PASSED [ 61%]
+source/tests/test_dataset.py::TestDataset::test_d12_missing_value[image_path] PASSED [ 62%]
+source/tests/test_dataset.py::TestDataset::test_d12_missing_value[label] PASSED [ 64%]
+source/tests/test_dataset.py::TestDataset::test_d12_missing_value[class_name] PASSED [ 66%]
+source/tests/test_dataset.py::TestDataset::test_d13_invalid_label[-1] PASSED [ 68%]
+source/tests/test_dataset.py::TestDataset::test_d13_invalid_label[2] PASSED [ 70%]
+source/tests/test_dataset.py::TestDataset::test_d13_invalid_label[0.5] PASSED [ 72%]
+source/tests/test_dataset.py::TestDataset::test_d13_invalid_label[invalid] PASSED [ 74%]
+source/tests/test_dataset.py::TestDataset::test_d14_class_label_mismatch[humans] PASSED [ 75%]
+source/tests/test_dataset.py::TestDataset::test_d14_class_label_mismatch[unknown] PASSED [ 77%]
+source/tests/test_dataset.py::TestDataset::test_d15_missing_image PASSED [ 79%]
+source/tests/test_dataset.py::TestDataset::test_d16_unreadable_image PASSED [ 81%]
+source/tests/test_dataset.py::TestDataset::test_d18_custom_transform_receives_unchanged_bgra PASSED [ 83%]
+source/tests/test_dataset.py::TestDataset::test_d19_paths_independent_of_cwd PASSED [ 85%]
+source/tests/test_dataset.py::TestDataset::test_d20_lazy_loading PASSED  [ 87%]
+source/tests/test_dataset.py::TestDataLoader::test_l01_l11_all_real_images_once PASSED [ 88%]
+source/tests/test_dataset.py::TestDataLoader::test_l12_l13_seeded_permutation PASSED [ 90%]
+source/tests/test_dataset.py::TestDataLoader::test_l14_l15_eval_deterministic[val] PASSED [ 92%]
+source/tests/test_dataset.py::TestDataLoader::test_l14_l15_eval_deterministic[test] PASSED [ 94%]
+source/tests/test_dataset.py::TestDataLoader::test_l16_l17_custom_transform_routing PASSED [ 96%]
+source/tests/test_dataset.py::TestDataLoader::test_l18_eval_does_not_advance_train_generator PASSED [ 98%]
+source/tests/test_dataset.py::TestDataLoader::test_l12_actual_batch_order_reproducible PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /home/kjwyy/miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+-------------------- generated xml file: /tmp/m1-pytest.xml --------------------
+============================= slowest 10 durations =============================
+3.88s call     source/tests/test_dataset.py::TestDataLoader::test_l01_l11_all_real_images_once
+0.02s call     source/tests/test_dataset.py::TestDataset::test_d01_d08_d17_d21_real_metadata_and_sample[train-845]
+0.02s call     source/tests/test_dataset.py::TestPreprocessing::test_p01_p05_p10_p12_tensor_contract[size0]
+0.02s call     source/tests/test_dataset.py::TestDataLoader::test_l18_eval_does_not_advance_train_generator
+0.02s call     source/tests/test_dataset.py::TestDataLoader::test_l12_l13_seeded_permutation
+0.02s call     source/tests/test_dataset.py::TestDataset::test_d19_paths_independent_of_cwd
+0.02s call     source/tests/test_dataset.py::TestDataLoader::test_l12_actual_batch_order_reproducible
+0.01s call     source/tests/test_dataset.py::TestDataLoader::test_l14_l15_eval_deterministic[val]
+0.01s call     source/tests/test_dataset.py::TestDataLoader::test_l14_l15_eval_deterministic[test]
+0.01s call     source/tests/test_dataset.py::TestDataset::test_d01_d08_d17_d21_real_metadata_and_sample[val-182]
+======================== 54 passed, 1 warning in 6.71s =========================
+

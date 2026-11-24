@@ -2,7 +2,8 @@
 
 Đã đọc đầy đủ 2 trang PDF `XLAV-CQ-LQN-TH02-Lab02-v1.0.pdf`.
 M0 đã đạt điều kiện môi trường/dữ liệu/split/hình EDA để bắt đầu M1.
-Còn xác minh bằng chứng Run All và Git trong phiên hiện tại; chưa triển khai M1–M8.
+M1 hoàn thành kỹ thuật theo kiểm thử độc lập: 54 PASS, 0 FAIL/SKIP/ERROR; xem báo cáo M1.
+M2–M8 chưa triển khai. Git repository đã truy cập được ở lượt refactor M1.
 Google Drive Backup là yêu cầu trước khi nộp bài, không chặn bắt đầu M1.
 
 
@@ -32,11 +33,11 @@ Files: scripts/*.py, config.py, requirements.txt, EDA notebook, README, báo cá
 - [x] Người dùng xác nhận --check-only PASS; audit/metadata khớp kiểm tra chỉ đọc độc lập.
 - [x] Đủ 4 hình EDA, đã kiểm tra đọc được.
 - [ ] Lưu bằng chứng notebook Run All: 6 code cells trong file hiện tại chưa có execution count/output.
-- [ ] Xác minh Git/tracking từ terminal máy thật; trong phiên này .git rỗng, Git báo not a git repository.
+- [x] Git repository truy cập được trong lượt refactor M1; đã đọc status/diff, không commit/push.
 
 Definition of Done: môi trường/dữ liệu/split/hình EDA PASS, notebook chạy toàn bộ và Git/tracking xác minh được.
 Hiện các điều kiện kỹ thuật về dữ liệu đã đạt, đủ để bắt đầu M1; chưa đóng toàn bộ M0 vì
-hai mục bằng chứng notebook và Git còn mở. Không tải/chia lại dữ liệu để xử lý hai mục này.
+mục bằng chứng Run All notebook EDA vẫn cần xác minh riêng. Không tải/chia lại dữ liệu.
 
 ## M1 — Dataset & Preprocessing
 
@@ -47,16 +48,28 @@ Nguồn tham khảo: `references/lecturer/pytorch_ffnn_image/nn_image/ffnn_image
 (flatten từng ảnh), `references/lecturer/pytorch_ffnn_image/test_ffnn_image.py` (NCHW demo).
 Áp dụng vào `source/dataset.py`, `source/preprocessing.py`, `source/tests/test_dataset.py`;
 không có Dataset/DataLoader thật trong reference, phải tự triển khai. Flatten mạng để M5.
+Quyết định M1: dùng OpenCV NumPy uint8 BGR/BGRA → RGB float32 CHW,
+alpha trong suốt composite nền trắng; INTER_LINEAR, deterministic, không sửa input.
+Người học đã triển khai Dataset/Loader; lượt này chỉ bổ sung test, không sửa thuật toán.
 
-- [ ] Custom PyTorch Dataset đọc CSV, kiểm tra đường dẫn/nhãn.
-- [ ] Kiểm tra giá trị Alpha trên ảnh RGBA: min/max hoặc histogram, tỷ lệ pixel/ảnh có transparency.
-- [ ] Quy định RGBA → RGB: bỏ alpha nếu opaque; nếu có transparency, compositing lên nền đã chọn và ghi rõ. Không sửa raw.
-- [ ] RGB, resize 64×64, float32 [0,1]; target float [1]; cùng chính sách Alpha cho train/val/test/inference.
-- [ ] DataLoader seed 42, batch 32, workers=0, shuffle chỉ train.
-- [ ] Kiểm tra shape/dtype/range, nhãn, độ dài, batch cuối và eval deterministic.
+- [x] Preprocessing P01–P12: shape/dtype/range/finite, resize vuông/không vuông, black/white,
+  RGB/BGRA đúng pixel, alpha, deterministic, invalid input và không mutation.
+- [x] Dataset D01–D21: CSV validation, counts 845/182/256, target float32 [1], nhãn đúng,
+  missing/corrupt files, default/custom transform, relative paths độc lập cwd và lazy loading.
+- [x] DataLoader L01–L18: samplers, 27/6/8 batches, tails 13/22/32, không bỏ/trùng mẫu,
+  seeded shuffle, different seeds, eval deterministic, custom transforms và generator độc lập.
+- [x] Duyệt cả ba DataLoader qua toàn bộ 1.283 ảnh thật đúng một lượt trong test tích hợp.
+- [x] `.venv/bin/python -m pytest source/tests/test_dataset.py -v --tb=short --durations=10`:
+  **54 PASS, 0 FAIL, 0 SKIP, 0 ERROR**, 6.71s. Số lượng từ pytest thực tế.
 
-Definition of Done: batch ảnh [B,3,64,64], nhãn [B,1], toàn bộ mẫu đọc được;
-không thay đổi split; xác minh xử lý RGBA có/không transparency; test_dataset không còn skip và PASS.
+Definition of Done: **M1 hoàn thành về mặt kỹ thuật** với cấu hình CPU hiện tại,
+batch 32 / workers 0 / seed 42, theo phạm vi kiểm tra P01–P12, D01–D21, L01–L18.
+Chi tiết: `results/metrics/m1_test_report.txt`, `results/metrics/m1_test_summary.json`.
+Không có lỗi bắt buộc cần sửa trước khi đóng M1. Kiểm tra repeated eval/shuffle/custom
+transforms dùng dữ liệu tổng hợp nhỏ để tránh lặp lại toàn bộ dataset thật.
+Chưa xác minh GPU/multiprocessing/custom root độc lập; đây không phải yêu cầu mặc định M1.
+P2 tùy chọn: dọn docstring/imports cũ; quy định config.root tùy biến; sửa cell notebook
+đang lấy loaders["train"] cho mọi vòng lặp thành loader. Không sửa các file đó trong lượt này.
 
 ## M2 — Data Augmentation
 

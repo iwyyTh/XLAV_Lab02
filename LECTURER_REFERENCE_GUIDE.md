@@ -13,6 +13,20 @@ PDF yêu cầu tự cài activation/đạo hàm và metrics, nhưng không yêu 
 Custom backward qua `torch.autograd.Function` là phương án đề xuất để đạo hàm tự cài
 thực sự được dùng khi training, không chỉ tồn tại dưới dạng một hàm không được gọi.
 
+## Cập nhật M1: OpenCV thay Pillow
+
+Người học đã viết preprocessing closure và bắt đầu Dataset.__init__. Refactor giữ thiết kế
+closure, chỉ chuyển hợp đồng sang NumPy uint8 BGR/BGRA → RGB tensor float32 CHW [0,1],
+contiguous. Dùng cvtColor một lần, resize INTER_LINEAR với (width,height); image_size
+của project vẫn (height,width). Alpha trong suốt ghép nền trắng để giữ hành vi trước đây.
+Lý do: thống nhất công cụ xử lý ảnh với kiến thức OpenCV trong môn học.
+
+Dataset.__getitem__ và build_loaders vẫn chưa triển khai: TODO đọc cv2.imread IMREAD_UNCHANGED,
+báo lỗi None kèm path; không convert màu ở Dataset. Dataset.__init__/__len__ giữ nguyên
+mức hoàn thiện của người học. Không suy diễn preprocessing tests PASS là toàn M1 PASS.
+Pillow vẫn là dependency cho chuẩn bị dữ liệu/EDA/torchvision và baseline so sánh trong notebook.
+Không sửa framework giảng viên hoặc thay đổi kiến trúc MLP vì thay thư viện đọc ảnh.
+
 ## 1. Chức năng của bốn project
 
 Đường dẫn trong bảng đều tương đối với `references/lecturer/`.
@@ -55,7 +69,7 @@ Tiền tố `R/` dưới đây viết tắt cho `references/lecturer/`; đích t
 
 | Module | Nguồn chính xác và thành phần | Đích hiện tại | Tham khảo / cần tự làm |
 |---|---|---|---|
-| M1 | `R/pytorch_ffnn_image/nn_image/ffnn_image.py:57–60` (`forward`); `R/pytorch_ffnn2_image/network_image/network.py:49–52` (`fit`); `R/pytorch_ffnn_image/test_ffnn_image.py:8–18` | `source/dataset.py`, `source/preprocessing.py`, `source/tests/test_dataset.py` | Hiểu NCHW/flatten, thay random tensors bằng CSV/Pillow/Dataset/DataLoader; kiểm tra Alpha, RGB, resize, /255. Flatten chính thức để ở model M5 |
+| M1 | `R/pytorch_ffnn_image/nn_image/ffnn_image.py:57–60` (`forward`); `R/pytorch_ffnn2_image/network_image/network.py:49–52` (`fit`); `R/pytorch_ffnn_image/test_ffnn_image.py:8–18` | `source/dataset.py`, `source/preprocessing.py`, `source/tests/test_dataset.py` | Hiểu NCHW/flatten, thay random tensors bằng CSV/OpenCV/Dataset/DataLoader; kiểm tra Alpha, RGB, resize, /255. Flatten chính thức để ở model M5 |
 | M2 | Không project nào có augmentation; `R/pytorch_ffnn_image/visualize_ffnn.py:36–48` (`visualize`) chỉ gợi ý bố cục hình | `source/augmentation.py`, `source/experiments/03_augmentation.ipynb` | Tự cài ít nhất flip và rotation; train-only, seed, fill policy và lưới cùng ảnh trước/sau |
 | M3 | `R/pytorch_ffnn/nn_simple/ffnn.py:8–14,67–73`; `R/pytorch_ffnn2/function_simple/activation.py`, `activation_prime.py`; `R/pytorch_ffnn2/layer_simple/act_layer.py:12–19`; `R/pytorch_ffnn2_image/function_image/activation.py`, `activation_prime.py`; `R/pytorch_ffnn2_image/layer_image/act_layer.py` | `source/activations.py`, `source/tests/test_activations.py`, `source/experiments/02_activation.ipynb` | Chain rule, phân biệt x và sigmoid(x); tự cài ReLU/Sigmoid, custom Function.backward, gradcheck |
 | M4 | `R/pytorch_ffnn/nn_simple/ffnn.py:29–31`; `R/pytorch_ffnn_image/nn_image/ffnn_image.py:29–31`; `R/pytorch_ffnn2/layer_simple/fc_layer.py:11–12`; `R/pytorch_ffnn2_image/layer_image/fc_layer.py:11–13` (`FCLayer.__init__`) | `source/initialization.py`, `source/tests/test_initialization.py`, `source/experiments/01_initialization.ipynb` | Normal baseline và fan-in scaling; tự cài Xavier/He đúng công thức, thống nhất bias, gain và chiều weight |
@@ -245,9 +259,9 @@ và chưa xác minh nguồn serialization. Toàn bộ phân tích này không n�
 | 3 mẫu điểm số, XOR hoặc 10 random grayscale images | 1.283 ảnh PNG RGBA 300×300, nhãn 0/1 | Dataset đọc CSV, mở file lazy và xử lý lỗi rõ ràng |
 | torch.rand labels liên tục độc lập input | Horse/Human có ý nghĩa ngữ nghĩa | Không coi loss demo giảm là bằng chứng phân lớp hoặc tổng quát hóa |
 | 1×64×64 = 4096 features | 3×64×64 = 12288 sau chuyển RGB | Kiểm tra Alpha trước; không giữ 4 channels thành 16384 hoặc đọc grayscale |
-| Không có Alpha | RGBA, chưa xác minh mọi alpha đều 255 | Khảo sát transparency; nếu có phải composite nền đã chọn; thống nhất train/eval/inference |
+| Không có Alpha | RGBA, đã xác nhận 1.283 ảnh alpha=255 | OpenCV đọc BGRA; nếu gặp transparency mới thì composite nền trắng trước resize; thống nhất train/eval/inference |
 | Random tensor đã [0,1] | PNG thường đọc uint8 | RGB/resize/CHW/float32 /255; không /255 hai lần |
-| Tensor liên tục và đặt sẵn toàn bộ trong RAM | Pipeline PIL, augmentation và batching | Lazy load, workers=0, batch=32, kiểm tra batch cuối và tensor không contiguous |
+| Tensor liên tục và đặt sẵn toàn bộ trong RAM | Pipeline OpenCV, augmentation và batching | Lazy load, workers=0, batch=32, kiểm tra batch cuối và tensor không contiguous |
 | Random Normal std=1 trên input 4096 | Input chiều lớn, sigmoid có thể bão hòa | Theo dõi saturation/gradient, initialization đúng; không coi baseline kém là bug tất yếu |
 | Không split/augmentation, predict train hoặc noise | CSV cố định + validation + official test | Không leakage, không sửa raw; tối thiểu hai augmentation chỉ train |
 | Hidden 16 reshape 4×4 | Hidden 128/64 | Nếu vẽ activation, dùng bar chart hoặc grid ghi rõ là vector neuron, không phải spatial explanation |
