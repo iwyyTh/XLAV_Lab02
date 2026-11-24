@@ -1,0 +1,13 @@
+# Versions verified in local Python 3.11 environment.
+# Install torch/torchvision from the CPU index first on this laptop.
+torch==2.13.0
+torchvision==0.28.0
+numpy==2.4.6
+pandas==3.0.5
+matplotlib==3.11.1
+Pillow==12.3.0
+scikit-learn==1.9.0
+tqdm==4.70.0
+pytest==9.2.0
+jupyter==1.1.1
+ipykernel==7.3.0

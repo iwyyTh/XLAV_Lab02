@@ -1,0 +1,38 @@
+.venv/
+.venv-*/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.cache/
+data/raw/
+data/downloads/
+results/checkpoints/*
+!results/checkpoints/.gitkeep
+*.pt
+*.pth
+*.ckpt
+*.tmp
+*.part
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+secrets*.json
+.aws/
+.codex/
+.agents/
+
+# Lecturer reference materials
+references/
+XLAV-CQ-LQN-TH02-Lab02-v1.0.pdf
+
+# Archives and temporary logs
+*.zip
+*.log
+
+# IDE settings
+.vscode/

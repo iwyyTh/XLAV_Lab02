@@ -1,0 +1,25 @@
+{
+  "seed": 42,
+  "policy": "Official TFDS test retained; remaining train:val = 70:15",
+  "dataset_sha256": "2a9b0122ffa19fccbfc72208e7927263299af903a2cfae5c999aa67efb1197db",
+  "counts": {
+    "train": {
+      "horses": 411,
+      "humans": 434
+    },
+    "val": {
+      "horses": 89,
+      "humans": 93
+    },
+    "test": {
+      "horses": 128,
+      "humans": 128
+    }
+  },
+  "ratios": {
+    "train": 0.6586126266562744,
+    "val": 0.14185502727981295,
+    "test": 0.1995323460639127
+  },
+  "excluded_duplicates": []
+}

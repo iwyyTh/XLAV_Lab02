@@ -1,0 +1,37 @@
+{
+  "readable_images": 1283,
+  "corrupt_images": [],
+  "status": "PASS",
+  "unique_images": 1283,
+  "duplicate_files": 0,
+  "counts": {
+    "train": {
+      "horses": 411,
+      "humans": 434
+    },
+    "val": {
+      "horses": 89,
+      "humans": 93
+    },
+    "test": {
+      "horses": 128,
+      "humans": 128
+    }
+  },
+  "policy": "Official TFDS test retained; remaining train:val = 70:15",
+  "ratios": {
+    "train": 0.6586126266562744,
+    "val": 0.14185502727981295,
+    "test": 0.1995323460639127
+  },
+  "sizes": "{(300, 300): 1283}",
+  "formats": {
+    "PNG": 1283
+  },
+  "modes": {
+    "RGBA": 1283
+  },
+  "channels": {
+    "4": 1283
+  }
+}
