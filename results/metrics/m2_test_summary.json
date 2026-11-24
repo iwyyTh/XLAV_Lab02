@@ -1,0 +1,469 @@
+{
+  "date": "2026-11-24T14:44:13.150330+07:00",
+  "command": ".venv/bin/python -m pytest source/tests/test_augmentation.py -v --tb=short --durations=10 --junitxml=/tmp/m2-pytest.xml",
+  "versions": {
+    "python": "3.11.15",
+    "pytorch": "2.13.0+cu130",
+    "opencv": "4.14.0"
+  },
+  "collected": 59,
+  "counts": {
+    "PASS": 59,
+    "FAIL": 0,
+    "SKIP": 0,
+    "ERROR": 0
+  },
+  "groups": {
+    "HorizontalFlip": {
+      "PASS": 2,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 2,
+      "duration_seconds": 0.006
+    },
+    "RandomHorizontalFlip": {
+      "PASS": 17,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 17,
+      "duration_seconds": 0.011000000000000003
+    },
+    "Rotation": {
+      "PASS": 22,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 22,
+      "duration_seconds": 0.003
+    },
+    "RandomRotation": {
+      "PASS": 12,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 12,
+      "duration_seconds": 0.002
+    },
+    "Pipeline": {
+      "PASS": 4,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 4,
+      "duration_seconds": 0.004
+    },
+    "DataLoaderIntegration": {
+      "PASS": 2,
+      "FAIL": 0,
+      "SKIP": 0,
+      "ERROR": 0,
+      "total": 2,
+      "duration_seconds": 0.7969999999999999
+    }
+  },
+  "duration_seconds": 2.6,
+  "failed_tests": [],
+  "tests": [
+    {
+      "name": "test_exact_coordinate_mapping_and_double_flip[BGR]",
+      "group": "HorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.004
+    },
+    {
+      "name": "test_exact_coordinate_mapping_and_double_flip[BGRA]",
+      "group": "HorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.002
+    },
+    {
+      "name": "test_probability_boundaries[BGR-0.0-0.0-False]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_probability_boundaries[BGR-1.0-0.999999-True]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_probability_boundaries[BGR-0.5-0.4999-True]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_probability_boundaries[BGR-0.5-0.5-False]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_probability_boundaries[BGR-0.5-0.9-False]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_probability_boundaries[BGRA-0.0-0.0-False]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_probability_boundaries[BGRA-1.0-0.999999-True]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_probability_boundaries[BGRA-0.5-0.4999-True]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_probability_boundaries[BGRA-0.5-0.5-False]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_probability_boundaries[BGRA-0.5-0.9-False]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_invalid_probability[-0.1]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_invalid_probability[1.1]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_invalid_probability[nan]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_invalid_probability[inf]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_invalid_probability[-inf]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_same_python_seed_reproduces_sequence[BGR]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_same_python_seed_reproduces_sequence[BGRA]",
+      "group": "RandomHorizontalFlip",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_zero_identity[BGR]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_zero_identity[BGRA]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_square_quarter_turn_exact_pixels[3-90-1]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_square_quarter_turn_exact_pixels[3--90--1]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_square_quarter_turn_exact_pixels[3-180-2]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_square_quarter_turn_exact_pixels[4-90-1]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_square_quarter_turn_exact_pixels[4--90--1]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_square_quarter_turn_exact_pixels[4-180-2]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_non_square_90_reflect101_border_exact_pixels",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_signed_angles_preserve_shape_dtype_alpha_and_input[BGR--37.0]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_signed_angles_preserve_shape_dtype_alpha_and_input[BGR--15.0]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_signed_angles_preserve_shape_dtype_alpha_and_input[BGR-15.0]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_signed_angles_preserve_shape_dtype_alpha_and_input[BGR-37.0]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_signed_angles_preserve_shape_dtype_alpha_and_input[BGRA--37.0]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_signed_angles_preserve_shape_dtype_alpha_and_input[BGRA--15.0]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_signed_angles_preserve_shape_dtype_alpha_and_input[BGRA-15.0]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_signed_angles_preserve_shape_dtype_alpha_and_input[BGRA-37.0]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_border_does_not_create_black_or_transparent_corners",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_rotation_geometry_and_interpolation_arguments",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_nonfinite_angle_rejected[nan]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nonfinite_angle_rejected[inf]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_nonfinite_angle_rejected[-inf]",
+      "group": "Rotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_zero_max_angle_is_identity[BGR]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_zero_max_angle_is_identity[BGRA]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_uniform_bounds_and_forwarded_angle[-15.0]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_uniform_bounds_and_forwarded_angle[0.0]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_uniform_bounds_and_forwarded_angle[15.0]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_fixed_seed_samples_are_within_requested_interval",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_invalid_max_angle[-1.0]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_invalid_max_angle[nan]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_invalid_max_angle[inf]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_invalid_max_angle[-inf]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.0
+    },
+    {
+      "name": "test_same_python_seed_reproduces_rotation[BGR]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_same_python_seed_reproduces_rotation[BGRA]",
+      "group": "RandomRotation",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_tensor_contract_input_preserved_and_seed_reproducible[BGR]",
+      "group": "Pipeline",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_tensor_contract_input_preserved_and_seed_reproducible[BGRA]",
+      "group": "Pipeline",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_flip_rotation_preprocessing_order_and_parameters",
+      "group": "Pipeline",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_controlled_flip_and_zero_rotation_produce_correct_rgb",
+      "group": "Pipeline",
+      "status": "PASS",
+      "duration_seconds": 0.001
+    },
+    {
+      "name": "test_real_batches_train_only_eval_deterministic_and_labels",
+      "group": "DataLoaderIntegration",
+      "status": "PASS",
+      "duration_seconds": 0.571
+    },
+    {
+      "name": "test_real_train_first_batch_reproducible_when_both_rngs_seeded",
+      "group": "DataLoaderIntegration",
+      "status": "PASS",
+      "duration_seconds": 0.226
+    }
+  ],
+  "findings": [
+    {
+      "priority": "P2",
+      "kind": "reproducibility_contract",
+      "location": "source/augmentation.py:29,82; source/dataset.py:128–129",
+      "detail": "Augmentation dùng global Python random, DataLoader generator dùng torch. Đã kiểm chứng cùng Python seed tái lập output; CONFIG.seed không tự seed augmentation.",
+      "suggestion": "Khi viết entry point training, seed Python random một lần đầu run cùng torch; không reset seed mỗi ảnh. Nếu hỗ trợ nhiều worker, thêm worker seeding và test riêng."
+    },
+    {
+      "priority": "P2",
+      "kind": "documentation",
+      "location": "source/augmentation.py:38–64",
+      "detail": "Docstring chưa ghi đầy đủ center=((W-1)/2,(H-1)/2), INTER_LINEAR, BORDER_REFLECT_101, giữ canvas/crop và chính sách dtype.",
+      "suggestion": "Bổ sung hợp đồng vào docstring khi tự review; không cần thay thuật toán để vượt các test hiện tại."
+    },
+    {
+      "priority": "P2",
+      "kind": "notebook_evidence",
+      "location": "source/experiments/03_augmentation.ipynb",
+      "detail": "Notebook còn TODO dù đã có montage augmentation_comparison.png.",
+      "suggestion": "Người học có thể đưa cell tạo montage vào notebook để tái lập minh chứng; không xem đây là lỗi thuật toán."
+    }
+  ],
+  "unverified": [
+    "Test CPU/num_workers=0 trong .venv hiện tại; chưa kiểm tra multiprocessing/GPU hoặc runtime khác.",
+    "Integration đọc các batch đầu từ dataset thật, không duyệt toàn bộ 1.283 ảnh lần nữa; toàn bộ dữ liệu đã được M1 kiểm tra trước đó.",
+    "Reproducibility yêu cầu reset random.seed(seed) cho Python và tái tạo DataLoader cùng config.seed. Chỉ torch.manual_seed/config.seed không đủ để reset augmentation.",
+    "Không kiểm thử giá trị p bằng kiểm định tần suất thống kê; dùng mock các điểm 0, 0.4999, 0.5, 0.9, 0.999999 để kiểm tra đúng nhánh và biên mà không flaky.",
+    "03_augmentation.ipynb hiện vẫn chỉ có markdown TODO và code TODO; không chạy notebook và chưa thực hiện thí nghiệm huấn luyện có/không augmentation.",
+    "Chưa kiểm tra ảnh đầu vào sai dtype/shape, max_angle không phải số hoặc ngữ nghĩa xử lý ảnh có transparency khi rotation nội suy Alpha. Các phần này chưa có hợp đồng validation M2 rõ ràng; dữ liệu thật opaque.",
+    "Không có benchmark chất lượng mô hình hay khẳng định augmentation cải thiện accuracy; phần đó thuộc M7."
+  ],
+  "definition_of_done": {
+    "technical_achieved": true,
+    "scope": "M2 augmentation functions and CPU DataLoader integration; comparative training belongs to M7",
+    "figure_reviewed": "results/figures/augmentation_comparison.png",
+    "notebook_execution": "NOT RUN: TODO notebook"
+  },
+  "integrity": {
+    "protected_files": 1353,
+    "unchanged": true
+  },
+  "warnings": [
+    "1 PytestRemovedIn10Warning từ anyio pytest plugin; không ảnh hưởng kết quả."
+  ]
+}

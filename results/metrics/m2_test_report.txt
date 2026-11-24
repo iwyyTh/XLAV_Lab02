@@ -1,0 +1,140 @@
+M2 — DATA AUGMENTATION UNIT TESTING
+Date: 2026-11-24T14:44:13.150330+07:00
+Command: .venv/bin/python -m pytest source/tests/test_augmentation.py -v --tb=short --durations=10 --junitxml=/tmp/m2-pytest.xml
+Python 3.11.15 | PyTorch 2.13.0+cu130 | OpenCV 4.14.0
+Collected: 59 | PASS 59 | FAIL 0 | SKIP 0 | ERROR 0
+Execution time: 2.60s. Counts from pytest collection + JUnit outcomes, not requested checklist counts.
+
+GROUP RESULTS
+HorizontalFlip: total=2, PASS=2, FAIL=0, SKIP=0, ERROR=0, summed test time=0.006s
+RandomHorizontalFlip: total=17, PASS=17, FAIL=0, SKIP=0, ERROR=0, summed test time=0.011s
+Rotation: total=22, PASS=22, FAIL=0, SKIP=0, ERROR=0, summed test time=0.003s
+RandomRotation: total=12, PASS=12, FAIL=0, SKIP=0, ERROR=0, summed test time=0.002s
+Pipeline: total=4, PASS=4, FAIL=0, SKIP=0, ERROR=0, summed test time=0.004s
+DataLoaderIntegration: total=2, PASS=2, FAIL=0, SKIP=0, ERROR=0, summed test time=0.797s
+
+TEST DESIGN / CONTRACTS
+Horizontal flip: explicit coordinate mapping result[y,x]=input[y,W-1-x], involution, BGR/BGRA shape/dtype/nonmutation.
+Random flip: p=0/1/0.5 branch boundaries under mocked random draws; reject invalid/NaN/Inf; seeded sequence matches.
+Rotation: angle=0 identity, +/-90 and 180 versus numpy.rot90; non-square 3x5 +90 verified with manual source coordinate mapping and reflected border rows, not cv2-built expected output. Signed arbitrary angles preserve canvas/dtype/input and opaque alpha=255. Constant-image corners verify no black/transparency injection. Matrix/dsize/interpolation/border call arguments checked separately.
+Random rotation: max_angle=0 identity; mock asserts uniform(-max_angle,max_angle) and forwards exact chosen values including endpoints. Fixed-seed samples checked within bounds. Reject negative/NaN/Inf max_angle; repeated seeded output equal.
+Pipeline: real Flip->Rotation->Preprocessing order checked with sentinel arrays/call recorder, probability=.5, max_angle=15; RGB primary pixels checked end-to-end with forced flip and zero angle. Output float32 [3,64,64] contiguous/finite/[0,1], input unchanged, seeded reproducibility.
+DataLoader: real train batch of 32 transformed images and target [32,1], targets compared against metadata of actual read paths. Train transform called only for train. Two first-batch reads for each val/test equal in images and targets; custom eval transform called for both; Python RNG not consumed by eval. Two newly built train loaders reproduce actual augmented batches when Python RNG reset.
+No new dataset, no original image writes, no repeated full dataset traversal. M1 tests not rerun. Fixtures restore Python and torch RNG states.
+
+FAILURES / ROOT CAUSE / FIX
+No failed tests, no mandatory algorithm fix identified. No source algorithm was changed.
+
+P2 NOTES (not failed tests)
+P2 | source/augmentation.py:29,82; source/dataset.py:128–129
+  Augmentation dùng global Python random, DataLoader generator dùng torch. Đã kiểm chứng cùng Python seed tái lập output; CONFIG.seed không tự seed augmentation.
+  Suggestion: Khi viết entry point training, seed Python random một lần đầu run cùng torch; không reset seed mỗi ảnh. Nếu hỗ trợ nhiều worker, thêm worker seeding và test riêng.
+P2 | source/augmentation.py:38–64
+  Docstring chưa ghi đầy đủ center=((W-1)/2,(H-1)/2), INTER_LINEAR, BORDER_REFLECT_101, giữ canvas/crop và chính sách dtype.
+  Suggestion: Bổ sung hợp đồng vào docstring khi tự review; không cần thay thuật toán để vượt các test hiện tại.
+P2 | source/experiments/03_augmentation.ipynb
+  Notebook còn TODO dù đã có montage augmentation_comparison.png.
+  Suggestion: Người học có thể đưa cell tạo montage vào notebook để tái lập minh chứng; không xem đây là lỗi thuật toán.
+
+LIMITATIONS / NOT VERIFIED
+- Test CPU/num_workers=0 trong .venv hiện tại; chưa kiểm tra multiprocessing/GPU hoặc runtime khác.
+- Integration đọc các batch đầu từ dataset thật, không duyệt toàn bộ 1.283 ảnh lần nữa; toàn bộ dữ liệu đã được M1 kiểm tra trước đó.
+- Reproducibility yêu cầu reset random.seed(seed) cho Python và tái tạo DataLoader cùng config.seed. Chỉ torch.manual_seed/config.seed không đủ để reset augmentation.
+- Không kiểm thử giá trị p bằng kiểm định tần suất thống kê; dùng mock các điểm 0, 0.4999, 0.5, 0.9, 0.999999 để kiểm tra đúng nhánh và biên mà không flaky.
+- 03_augmentation.ipynb hiện vẫn chỉ có markdown TODO và code TODO; không chạy notebook và chưa thực hiện thí nghiệm huấn luyện có/không augmentation.
+- Chưa kiểm tra ảnh đầu vào sai dtype/shape, max_angle không phải số hoặc ngữ nghĩa xử lý ảnh có transparency khi rotation nội suy Alpha. Các phần này chưa có hợp đồng validation M2 rõ ràng; dữ liệu thật opaque.
+- Không có benchmark chất lượng mô hình hay khẳng định augmentation cải thiện accuracy; phần đó thuộc M7.
+
+VISUAL ARTIFACT
+Opened and visually inspected results/figures/augmentation_comparison.png. Contains Original / Horizontal Flip / Rotation 15° / Random Augmentation columns for horse/human examples. File preserved; visualization alone is not numerical proof or model-performance evidence.
+
+CONCLUSION
+M2 technical verification: PASS for implemented augmentation and CPU DataLoader integration. At least two techniques functional and illustrated; eval unchanged when build_loaders receives augmentation only as train_transform. Comparative training and executable experiment notebook remain future work, not claimed complete.
+Integrity: 1353 existing source/data/reference/figure files unchanged by SHA-256.
+Files created: source/tests/test_augmentation.py, results/metrics/m2_test_report.txt, results/metrics/m2_test_summary.json. Updated: M2 status in PLAN.md. No commit/push, no M3 implementation.
+
+RAW PYTEST OUTPUT
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/kjwyy/Documents/code/IMGproccess/BT-TH/ImageProcessing_Lab02
+plugins: anyio-4.14.2
+collecting ... collected 59 items
+
+source/tests/test_augmentation.py::TestHorizontalFlip::test_exact_coordinate_mapping_and_double_flip[BGR] PASSED [  1%]
+source/tests/test_augmentation.py::TestHorizontalFlip::test_exact_coordinate_mapping_and_double_flip[BGRA] PASSED [  3%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGR-0.0-0.0-False] PASSED [  5%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGR-1.0-0.999999-True] PASSED [  6%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGR-0.5-0.4999-True] PASSED [  8%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGR-0.5-0.5-False] PASSED [ 10%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGR-0.5-0.9-False] PASSED [ 11%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGRA-0.0-0.0-False] PASSED [ 13%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGRA-1.0-0.999999-True] PASSED [ 15%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGRA-0.5-0.4999-True] PASSED [ 16%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGRA-0.5-0.5-False] PASSED [ 18%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_probability_boundaries[BGRA-0.5-0.9-False] PASSED [ 20%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_invalid_probability[-0.1] PASSED [ 22%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_invalid_probability[1.1] PASSED [ 23%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_invalid_probability[nan] PASSED [ 25%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_invalid_probability[inf] PASSED [ 27%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_invalid_probability[-inf] PASSED [ 28%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_same_python_seed_reproduces_sequence[BGR] PASSED [ 30%]
+source/tests/test_augmentation.py::TestRandomHorizontalFlip::test_same_python_seed_reproduces_sequence[BGRA] PASSED [ 32%]
+source/tests/test_augmentation.py::TestRotation::test_zero_identity[BGR] PASSED [ 33%]
+source/tests/test_augmentation.py::TestRotation::test_zero_identity[BGRA] PASSED [ 35%]
+source/tests/test_augmentation.py::TestRotation::test_square_quarter_turn_exact_pixels[3-90-1] PASSED [ 37%]
+source/tests/test_augmentation.py::TestRotation::test_square_quarter_turn_exact_pixels[3--90--1] PASSED [ 38%]
+source/tests/test_augmentation.py::TestRotation::test_square_quarter_turn_exact_pixels[3-180-2] PASSED [ 40%]
+source/tests/test_augmentation.py::TestRotation::test_square_quarter_turn_exact_pixels[4-90-1] PASSED [ 42%]
+source/tests/test_augmentation.py::TestRotation::test_square_quarter_turn_exact_pixels[4--90--1] PASSED [ 44%]
+source/tests/test_augmentation.py::TestRotation::test_square_quarter_turn_exact_pixels[4-180-2] PASSED [ 45%]
+source/tests/test_augmentation.py::TestRotation::test_non_square_90_reflect101_border_exact_pixels PASSED [ 47%]
+source/tests/test_augmentation.py::TestRotation::test_signed_angles_preserve_shape_dtype_alpha_and_input[BGR--37.0] PASSED [ 49%]
+source/tests/test_augmentation.py::TestRotation::test_signed_angles_preserve_shape_dtype_alpha_and_input[BGR--15.0] PASSED [ 50%]
+source/tests/test_augmentation.py::TestRotation::test_signed_angles_preserve_shape_dtype_alpha_and_input[BGR-15.0] PASSED [ 52%]
+source/tests/test_augmentation.py::TestRotation::test_signed_angles_preserve_shape_dtype_alpha_and_input[BGR-37.0] PASSED [ 54%]
+source/tests/test_augmentation.py::TestRotation::test_signed_angles_preserve_shape_dtype_alpha_and_input[BGRA--37.0] PASSED [ 55%]
+source/tests/test_augmentation.py::TestRotation::test_signed_angles_preserve_shape_dtype_alpha_and_input[BGRA--15.0] PASSED [ 57%]
+source/tests/test_augmentation.py::TestRotation::test_signed_angles_preserve_shape_dtype_alpha_and_input[BGRA-15.0] PASSED [ 59%]
+source/tests/test_augmentation.py::TestRotation::test_signed_angles_preserve_shape_dtype_alpha_and_input[BGRA-37.0] PASSED [ 61%]
+source/tests/test_augmentation.py::TestRotation::test_border_does_not_create_black_or_transparent_corners PASSED [ 62%]
+source/tests/test_augmentation.py::TestRotation::test_rotation_geometry_and_interpolation_arguments PASSED [ 64%]
+source/tests/test_augmentation.py::TestRotation::test_nonfinite_angle_rejected[nan] PASSED [ 66%]
+source/tests/test_augmentation.py::TestRotation::test_nonfinite_angle_rejected[inf] PASSED [ 67%]
+source/tests/test_augmentation.py::TestRotation::test_nonfinite_angle_rejected[-inf] PASSED [ 69%]
+source/tests/test_augmentation.py::TestRandomRotation::test_zero_max_angle_is_identity[BGR] PASSED [ 71%]
+source/tests/test_augmentation.py::TestRandomRotation::test_zero_max_angle_is_identity[BGRA] PASSED [ 72%]
+source/tests/test_augmentation.py::TestRandomRotation::test_uniform_bounds_and_forwarded_angle[-15.0] PASSED [ 74%]
+source/tests/test_augmentation.py::TestRandomRotation::test_uniform_bounds_and_forwarded_angle[0.0] PASSED [ 76%]
+source/tests/test_augmentation.py::TestRandomRotation::test_uniform_bounds_and_forwarded_angle[15.0] PASSED [ 77%]
+source/tests/test_augmentation.py::TestRandomRotation::test_fixed_seed_samples_are_within_requested_interval PASSED [ 79%]
+source/tests/test_augmentation.py::TestRandomRotation::test_invalid_max_angle[-1.0] PASSED [ 81%]
+source/tests/test_augmentation.py::TestRandomRotation::test_invalid_max_angle[nan] PASSED [ 83%]
+source/tests/test_augmentation.py::TestRandomRotation::test_invalid_max_angle[inf] PASSED [ 84%]
+source/tests/test_augmentation.py::TestRandomRotation::test_invalid_max_angle[-inf] PASSED [ 86%]
+source/tests/test_augmentation.py::TestRandomRotation::test_same_python_seed_reproduces_rotation[BGR] PASSED [ 88%]
+source/tests/test_augmentation.py::TestRandomRotation::test_same_python_seed_reproduces_rotation[BGRA] PASSED [ 89%]
+source/tests/test_augmentation.py::TestPipeline::test_tensor_contract_input_preserved_and_seed_reproducible[BGR] PASSED [ 91%]
+source/tests/test_augmentation.py::TestPipeline::test_tensor_contract_input_preserved_and_seed_reproducible[BGRA] PASSED [ 93%]
+source/tests/test_augmentation.py::TestPipeline::test_flip_rotation_preprocessing_order_and_parameters PASSED [ 94%]
+source/tests/test_augmentation.py::TestPipeline::test_controlled_flip_and_zero_rotation_produce_correct_rgb PASSED [ 96%]
+source/tests/test_augmentation.py::TestDataLoaderIntegration::test_real_batches_train_only_eval_deterministic_and_labels PASSED [ 98%]
+source/tests/test_augmentation.py::TestDataLoaderIntegration::test_real_train_first_batch_reproducible_when_both_rngs_seeded PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../../miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /home/kjwyy/miniconda3/envs/pytorch/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+-------------------- generated xml file: /tmp/m2-pytest.xml --------------------
+============================= slowest 10 durations =============================
+0.57s call     source/tests/test_augmentation.py::TestDataLoaderIntegration::test_real_batches_train_only_eval_deterministic_and_labels
+0.23s call     source/tests/test_augmentation.py::TestDataLoaderIntegration::test_real_train_first_batch_reproducible_when_both_rngs_seeded
+
+(8 durations < 0.005s hidden.  Use -vv to show these durations.)
+======================== 59 passed, 1 warning in 2.60s =========================
+
